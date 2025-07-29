@@ -24,10 +24,12 @@ export default function Home() {
               writing with the power of AI.
             </p>
             <div className="mt-10 flex items-center gap-x-6">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
-                Start Creating
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
+              <Link href="#generator" passHref>
+                <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
+                  Start Creating
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
               <Link href="#learn-more" className="text-base font-semibold text-white hover:text-white/80">
                 Learn more <span aria-hidden="true">→</span>
               </Link>
@@ -87,7 +89,7 @@ export default function Home() {
       </section>
 
       {/* Generator Section */}
-      <section className="bg-slate-50 py-24 dark:bg-slate-900">
+      <section id="generator" className="bg-slate-50 py-24 dark:bg-slate-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Try It Yourself</h2>
@@ -174,9 +176,11 @@ export default function Home() {
               Join our community of AI artists and explore the endless possibilities of AI-powered creativity.
             </p>
             <div className="mt-10">
-              <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
-                Get Started Now
-              </Button>
+              <Link href="#generator" passHref>
+                <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
+                  Get Started Now
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
