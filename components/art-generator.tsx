@@ -26,10 +26,8 @@ export function ArtGenerator() {
     if (type === "image") {
       return `/placeholder.svg?height=512&width=512&text=AI+Art+${hash}`
     } else if (type === "music") {
-      // Mock audio URL - in a real app, this would be a generated audio file
       return `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(hash % 16) + 1}.mp3`
     } else if (type === "text") {
-      // Mock generated text
       const mockTexts = [
         "In a realm where dreams intertwine with reality, a lone star whispered secrets to the ancient trees, painting the night sky with hues of forgotten magic. The wind carried tales of old, and the rivers flowed with echoes of laughter from a time long past.",
         "The city hummed a symphony of ambition and despair, its neon glow reflecting off rain-slicked streets. A detective, weary from endless nights, traced the faint scent of jasmine and betrayal, knowing that every shadow held a story untold.",
@@ -130,35 +128,44 @@ export function ArtGenerator() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow-lg dark:bg-slate-800">
+    <div className="mx-auto max-w-4xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
       <Tabs defaultValue="image" onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="image">Image</TabsTrigger>
-          <TabsTrigger value="music">Music</TabsTrigger>
-          <TabsTrigger value="text">Text</TabsTrigger>
+          <TabsTrigger value="image" className="text-xs sm:text-sm">
+            Image
+          </TabsTrigger>
+          <TabsTrigger value="music" className="text-xs sm:text-sm">
+            Music
+          </TabsTrigger>
+          <TabsTrigger value="text" className="text-xs sm:text-sm">
+            Text
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="image" className="mt-6">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-6">
+        <TabsContent value="image" className="mt-4 sm:mt-6">
+          <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="image-prompt">Describe your image</Label>
+                <Label htmlFor="image-prompt" className="text-sm font-medium">
+                  Describe your image
+                </Label>
                 <Input
                   id="image-prompt"
                   placeholder="A surreal landscape with floating islands and waterfalls..."
                   value={imagePrompt}
                   onChange={(e) => setImagePrompt(e.target.value)}
+                  className="text-sm"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Art Style</Label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <Label className="text-sm font-medium">Art Style</Label>
+                <div className="grid grid-cols-2 gap-2">
                   {["realistic", "abstract", "digital", "painterly"].map((styleOption) => (
                     <Button
                       key={styleOption}
                       variant={style === styleOption ? "default" : "outline"}
                       onClick={() => setStyle(styleOption)}
-                      className="capitalize"
+                      className="h-9 text-xs capitalize sm:h-10 sm:text-sm"
                     >
                       {styleOption}
                     </Button>
@@ -168,8 +175,10 @@ export function ArtGenerator() {
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label htmlFor="complexity">Complexity</Label>
-                  <span className="text-sm text-muted-foreground">{complexity[0]}%</span>
+                  <Label htmlFor="complexity" className="text-sm font-medium">
+                    Complexity
+                  </Label>
+                  <span className="text-xs text-muted-foreground sm:text-sm">{complexity[0]}%</span>
                 </div>
                 <Slider id="complexity" min={0} max={100} step={1} value={complexity} onValueChange={setComplexity} />
               </div>
@@ -190,9 +199,9 @@ export function ArtGenerator() {
               </Button>
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
               {generatedImage ? (
-                <div className="space-y-4">
+                <div className="w-full space-y-4">
                   <div className="relative aspect-square w-full overflow-hidden rounded-lg">
                     <img
                       src={generatedImage || "/placeholder.svg"}
@@ -202,28 +211,43 @@ export function ArtGenerator() {
                       height={512}
                     />
                   </div>
-                  <div className="flex justify-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRegenerate}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Regenerate
+                  <div className="flex flex-wrap justify-center gap-2 pb-safe">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerate}
+                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Regenerate</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownload("image")}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload("image")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Download</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleShare("image")}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleShare("image")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Share</span>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
                   <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900">
-                    <Paintbrush className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <Paintbrush className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-lg font-medium">No Image Generated Yet</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">No Image Generated Yet</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Enter a prompt and click generate to create your artwork
                   </p>
                 </div>
@@ -231,16 +255,19 @@ export function ArtGenerator() {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="music" className="mt-6">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-6">
+        <TabsContent value="music" className="mt-4 sm:mt-6">
+          <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="music-prompt">Describe your music</Label>
+                <Label htmlFor="music-prompt" className="text-sm font-medium">
+                  Describe your music
+                </Label>
                 <Input
                   id="music-prompt"
                   placeholder="A calm, ambient track with piano and strings..."
                   value={musicPrompt}
                   onChange={(e) => setMusicPrompt(e.target.value)}
+                  className="text-sm"
                 />
               </div>
               <Button
@@ -258,36 +285,51 @@ export function ArtGenerator() {
                 )}
               </Button>
             </div>
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
               {generatedMusic ? (
-                <div className="space-y-4 text-center">
+                <div className="w-full space-y-4 text-center">
                   <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                    <Music className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="text-lg font-medium">Generated Music</h3>
+                  <h3 className="text-base font-medium sm:text-lg">Generated Music</h3>
                   <audio controls src={generatedMusic} className="w-full max-w-xs" />
-                  <div className="flex justify-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRegenerate}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Regenerate
+                  <div className="flex flex-wrap justify-center gap-2 pb-safe">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerate}
+                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Regenerate</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownload("music")}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload("music")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Download</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleShare("music")}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleShare("music")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Share</span>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
                   <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                    <Music className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-lg font-medium">No Music Generated Yet</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">No Music Generated Yet</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Enter a prompt and click generate to create your music
                   </p>
                 </div>
@@ -295,17 +337,20 @@ export function ArtGenerator() {
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="text" className="mt-6">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-6">
+        <TabsContent value="text" className="mt-4 sm:mt-6">
+          <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="text-prompt">Describe your creative writing</Label>
+                <Label htmlFor="text-prompt" className="text-sm font-medium">
+                  Describe your creative writing
+                </Label>
                 <Textarea
                   id="text-prompt"
                   placeholder="A short story about a robot discovering a hidden garden..."
                   value={textPrompt}
                   onChange={(e) => setTextPrompt(e.target.value)}
-                  rows={5}
+                  rows={4}
+                  className="text-sm"
                 />
               </div>
               <Button
@@ -323,42 +368,62 @@ export function ArtGenerator() {
                 )}
               </Button>
             </div>
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
               {generatedText ? (
-                <div className="space-y-4 w-full">
+                <div className="w-full space-y-4">
                   <div className="mb-4 rounded-full bg-pink-100 p-3 dark:bg-pink-900">
-                    <FileText className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                    <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="text-lg font-medium text-center">Generated Text</h3>
-                  <div className="max-h-64 overflow-y-auto rounded-md border p-4 text-sm text-muted-foreground">
+                  <h3 className="text-center text-base font-medium sm:text-lg">Generated Text</h3>
+                  <div className="max-h-48 overflow-y-auto rounded-md border p-3 text-xs text-muted-foreground sm:max-h-64 sm:p-4 sm:text-sm">
                     <p>{generatedText}</p>
                   </div>
-                  <div className="flex justify-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handleRegenerate}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Regenerate
+                  <div className="flex flex-wrap justify-center gap-2 pb-safe">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerate}
+                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                    >
+                      <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Regenerate</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleCopyText}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyText}
+                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                    >
+                      <Copy className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Copy</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownload("text")}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload("text")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Download</span>
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleShare("text")}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleShare("text")}
+                      className="flex-1 min-w-0 sm:flex-none"
+                    >
+                      <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="text-xs sm:text-sm">Share</span>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
                   <div className="mb-4 rounded-full bg-pink-100 p-3 dark:bg-pink-900">
-                    <FileText className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                    <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-lg font-medium">No Text Generated Yet</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">No Text Generated Yet</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Enter a prompt and click generate to create your writing
                   </p>
                 </div>

@@ -22,11 +22,11 @@ export function FeatureCard({ icon, title, description, color }: FeatureCardProp
 
   return (
     <div
-      className={`rounded-xl bg-gradient-to-br ${getGradientClass(color)} p-8 shadow-sm transition-all hover:shadow-md`}
+      className={`rounded-xl bg-gradient-to-br ${getGradientClass(color)} p-6 shadow-sm transition-all hover:shadow-md sm:p-8`}
     >
-      <div className="mb-4">{icon}</div>
-      <h3 className="mb-2 text-xl font-bold">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
+      <div className="mb-3 sm:mb-4">{icon}</div>
+      <h3 className="mb-2 text-lg font-bold sm:text-xl">{title}</h3>
+      <p className="text-sm text-muted-foreground sm:text-base">{description}</p>
     </div>
   )
 }

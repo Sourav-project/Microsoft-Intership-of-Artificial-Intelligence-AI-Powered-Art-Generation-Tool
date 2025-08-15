@@ -77,6 +77,12 @@ const config = {
         "grid-white":
           "linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
       },
+      spacing: {
+        safe: "env(safe-area-inset-bottom)",
+      },
+      padding: {
+        safe: "env(safe-area-inset-bottom)",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

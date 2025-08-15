@@ -11,21 +11,21 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-        <div className="container relative mx-auto px-4 py-24 sm:px-6 lg:flex lg:items-center lg:px-8">
+        <div className="container relative mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:flex lg:items-center lg:px-8">
           <div className="max-w-3xl">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
               <span className="block">AI-Powered</span>
               <span className="block bg-gradient-to-r from-yellow-200 via-green-200 to-blue-200 bg-clip-text text-transparent">
                 Art Generation
               </span>
             </h1>
-            <p className="mt-6 max-w-xl text-xl text-white/90">
+            <p className="mt-4 max-w-xl text-lg text-white/90 sm:mt-6 sm:text-xl">
               Explore the intersection of creativity and artificial intelligence. Create stunning artwork, music, and
               writing with the power of AI.
             </p>
-            <div className="mt-10 flex items-center gap-x-6">
+            <div className="mt-8 flex flex-col items-start gap-4 sm:mt-10 sm:flex-row sm:items-center sm:gap-x-6">
               <Link href="#generator" passHref>
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
+                <Button size="lg" className="w-full bg-white text-purple-600 hover:bg-white/90 sm:w-auto">
                   Start Creating
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -36,51 +36,51 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent sm:h-12" />
       </section>
 
       {/* Features Section */}
-      <section id="learn-more" className="container mx-auto px-4 py-24 sm:px-6 lg:px-8">
+      <section id="learn-more" className="container mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Explore AI Art Generation</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">Explore AI Art Generation</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground sm:mt-4 sm:text-lg">
             Discover the various ways AI can enhance your creative process
           </p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
-            icon={<Paintbrush className="h-10 w-10 text-purple-500" />}
+            icon={<Paintbrush className="h-8 w-8 text-purple-500 sm:h-10 sm:w-10" />}
             title="Visual Art"
             description="Generate stunning images, paintings, and illustrations using state-of-the-art AI models."
             color="purple"
           />
           <FeatureCard
-            icon={<Music className="h-10 w-10 text-blue-500" />}
+            icon={<Music className="h-8 w-8 text-blue-500 sm:h-10 sm:w-10" />}
             title="Music Composition"
             description="Create original melodies, harmonies, and complete musical pieces with AI assistance."
             color="blue"
           />
           <FeatureCard
-            icon={<FileText className="h-10 w-10 text-pink-500" />}
+            icon={<FileText className="h-8 w-8 text-pink-500 sm:h-10 sm:w-10" />}
             title="Creative Writing"
             description="Craft stories, poems, and other written content with AI-powered language models."
             color="pink"
           />
           <FeatureCard
-            icon={<Sparkles className="h-10 w-10 text-amber-500" />}
+            icon={<Sparkles className="h-8 w-8 text-amber-500 sm:h-10 sm:w-10" />}
             title="Style Transfer"
             description="Apply the style of famous artists to your own creations with neural style transfer."
             color="amber"
           />
           <FeatureCard
-            icon={<Brain className="h-10 w-10 text-green-500" />}
+            icon={<Brain className="h-8 w-8 text-green-500 sm:h-10 sm:w-10" />}
             title="Conceptual Art"
             description="Explore abstract concepts and ideas through AI-generated visual representations."
             color="green"
           />
           <FeatureCard
-            icon={<Layers className="h-10 w-10 text-red-500" />}
+            icon={<Layers className="h-8 w-8 text-red-500 sm:h-10 sm:w-10" />}
             title="Mixed Media"
             description="Combine different art forms and techniques to create unique multimedia experiences."
             color="red"
@@ -89,76 +89,82 @@ export default function Home() {
       </section>
 
       {/* Generator Section */}
-      <section id="generator" className="bg-slate-50 py-24 dark:bg-slate-900">
+      <section id="generator" className="bg-slate-50 py-16 dark:bg-slate-900 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Try It Yourself</h2>
-            <p className="mt-4 text-lg text-muted-foreground">Generate your own AI artwork with our interactive demo</p>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">Try It Yourself</h2>
+            <p className="mt-3 text-base text-muted-foreground sm:mt-4 sm:text-lg">
+              Generate your own AI artwork with our interactive demo
+            </p>
           </div>
 
-          <div className="mt-16">
+          <div className="mt-12 sm:mt-16">
             <ArtGenerator />
           </div>
         </div>
       </section>
 
       {/* Gallery Section */}
-      <section className="container mx-auto px-4 py-24 sm:px-6 lg:px-8">
+      <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Gallery</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Explore a collection of AI-generated artwork</p>
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">Gallery</h2>
+          <p className="mt-3 text-base text-muted-foreground sm:mt-4 sm:text-lg">
+            Explore a collection of AI-generated artwork
+          </p>
         </div>
 
-        <div className="mt-16">
+        <div className="mt-12 sm:mt-16">
           <ArtGallery />
         </div>
       </section>
 
       {/* Principles Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 py-24 text-white">
+      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 py-16 text-white sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Understanding AI Art</h2>
-            <p className="mt-4 text-lg text-white/80">The principles behind AI-generated creative content</p>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">Understanding AI Art</h2>
+            <p className="mt-3 text-base text-white/80 sm:mt-4 sm:text-lg">
+              The principles behind AI-generated creative content
+            </p>
           </div>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Neural Networks</h3>
-              <p className="mt-2 text-white/80">
+          <div className="mt-12 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Neural Networks</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 AI art is created using complex neural networks that learn patterns from existing artwork and generate
                 new content.
               </p>
             </div>
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Training Data</h3>
-              <p className="mt-2 text-white/80">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Training Data</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 The quality and diversity of training data significantly impacts the AI's ability to create original and
                 meaningful art.
               </p>
             </div>
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Human Collaboration</h3>
-              <p className="mt-2 text-white/80">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Human Collaboration</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 The most compelling AI art often emerges from collaboration between human creativity and machine
                 intelligence.
               </p>
             </div>
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Ethical Considerations</h3>
-              <p className="mt-2 text-white/80">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Ethical Considerations</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 AI art raises important questions about authorship, originality, and the value of human creativity.
               </p>
             </div>
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Technical Limitations</h3>
-              <p className="mt-2 text-white/80">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Technical Limitations</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 Understanding the capabilities and constraints of AI models helps artists leverage them effectively.
               </p>
             </div>
-            <div className="rounded-lg bg-white/10 p-6 backdrop-blur-sm">
-              <h3 className="text-xl font-bold">Future Directions</h3>
-              <p className="mt-2 text-white/80">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm sm:p-6">
+              <h3 className="text-lg font-bold sm:text-xl">Future Directions</h3>
+              <p className="mt-2 text-sm text-white/80 sm:text-base">
                 AI art continues to evolve rapidly, opening new possibilities for creative expression and artistic
                 innovation.
               </p>
@@ -168,16 +174,18 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-24 sm:px-6 lg:px-8">
-        <div className="rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-8 shadow-xl sm:p-16">
+      <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-6 shadow-xl sm:p-8 lg:p-16">
           <div className="mx-auto max-w-xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Ready to start creating?</h2>
-            <p className="mt-4 text-lg text-white/90">
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+              Ready to start creating?
+            </h2>
+            <p className="mt-3 text-base text-white/90 sm:mt-4 sm:text-lg">
               Join our community of AI artists and explore the endless possibilities of AI-powered creativity.
             </p>
-            <div className="mt-10">
+            <div className="mt-8 sm:mt-10">
               <Link href="#generator" passHref>
-                <Button size="lg" className="bg-white text-purple-600 hover:bg-white/90">
+                <Button size="lg" className="w-full bg-white text-purple-600 hover:bg-white/90 sm:w-auto">
                   Get Started Now
                 </Button>
               </Link>
@@ -187,10 +195,10 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 py-12 text-white">
+      <footer className="bg-slate-900 py-8 text-white sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-sm text-slate-400">
+            <p className="text-xs text-slate-400 sm:text-sm">
               © {new Date().getFullYear()} AI Art Generation. All rights reserved.
             </p>
           </div>

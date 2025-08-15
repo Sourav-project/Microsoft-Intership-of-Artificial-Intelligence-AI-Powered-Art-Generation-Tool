@@ -85,7 +85,7 @@ const initialGalleryItems = [
 export function ArtGallery() {
   const [activeCategory, setActiveCategory] = useState("all")
   const [galleryItems, setGalleryItems] = useState(initialGalleryItems)
-  const [page, setPage] = useState(1) // For simulating pagination
+  const [page, setPage] = useState(1)
 
   const filteredItems =
     activeCategory === "all" ? galleryItems : galleryItems.filter((item) => item.category === activeCategory)
@@ -125,19 +125,27 @@ export function ArtGallery() {
   }
 
   return (
-    <div>
+    <div className="pb-safe">
       <Tabs defaultValue="all" onValueChange={setActiveCategory} className="w-full">
         <div className="flex justify-center">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="visual">Visual Art</TabsTrigger>
-            <TabsTrigger value="music">Music</TabsTrigger>
-            <TabsTrigger value="text">Writing</TabsTrigger>
+          <TabsList className="grid w-full max-w-md grid-cols-4">
+            <TabsTrigger value="all" className="text-xs sm:text-sm">
+              All
+            </TabsTrigger>
+            <TabsTrigger value="visual" className="text-xs sm:text-sm">
+              Visual
+            </TabsTrigger>
+            <TabsTrigger value="music" className="text-xs sm:text-sm">
+              Music
+            </TabsTrigger>
+            <TabsTrigger value="text" className="text-xs sm:text-sm">
+              Writing
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value={activeCategory} className="mt-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <TabsContent value={activeCategory} className="mt-6 sm:mt-8">
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredItems.map((item) => (
               <Card key={item.id} className="overflow-hidden transition-all hover:shadow-lg">
                 <div className="relative aspect-square overflow-hidden sm:aspect-[4/3]">
@@ -147,22 +155,22 @@ export function ArtGallery() {
                     className="h-full w-full object-cover transition-transform hover:scale-105"
                   />
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.artist}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex space-x-4">
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        <Heart className="mr-1 h-4 w-4" />
-                        {item.likes}
+                <CardContent className="p-3 sm:p-4">
+                  <h3 className="text-sm font-semibold sm:text-base">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{item.artist}</p>
+                  <div className="mt-3 flex items-center justify-between sm:mt-4">
+                    <div className="flex space-x-3 sm:space-x-4">
+                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2">
+                        <Heart className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">{item.likes}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 px-2">
-                        <MessageSquare className="mr-1 h-4 w-4" />
-                        {item.comments}
+                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2">
+                        <MessageSquare className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">{item.comments}</span>
                       </Button>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Share2 className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 sm:h-8 sm:w-8">
+                      <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -172,8 +180,8 @@ export function ArtGallery() {
         </TabsContent>
       </Tabs>
 
-      <div className="mt-12 text-center">
-        <Button variant="outline" size="lg" onClick={handleLoadMore}>
+      <div className="mt-8 text-center sm:mt-12">
+        <Button variant="outline" size="lg" onClick={handleLoadMore} className="w-full sm:w-auto bg-transparent">
           Load More
         </Button>
       </div>
