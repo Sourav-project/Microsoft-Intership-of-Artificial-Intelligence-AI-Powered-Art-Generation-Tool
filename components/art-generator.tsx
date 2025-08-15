@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { MusicVisualizer } from "./music-visualizer"
 import {
   Loader2,
   RefreshCw,
@@ -42,6 +43,19 @@ interface GenerationResult {
     enhancedPrompt?: string
     note?: string
   }
+}
+
+interface MusicAnalysis {
+  tempo: number
+  key: string
+  energy: number
+  danceability: number
+  valence: number
+  loudness: number
+  duration: number
+  timeSignature: string
+  genre: string
+  language: string
 }
 
 // Language options for music generation
@@ -135,6 +149,18 @@ export function ArtGenerator() {
   const [musicGenre, setMusicGenre] = useState("Pop")
   const [musicDuration, setMusicDuration] = useState([30])
   const [musicType, setMusicType] = useState("song")
+  const [musicAnalysis, setMusicAnalysis] = useState<MusicAnalysis>({
+    tempo: 120,
+    key: "C Major",
+    energy: 75,
+    danceability: 68,
+    valence: 80,
+    loudness: -12.5,
+    duration: 30,
+    timeSignature: "4/4",
+    genre: "Pop",
+    language: "English",
+  })
 
   // Text generation states
   const [textLanguage, setTextLanguage] = useState("en")
@@ -217,6 +243,62 @@ export function ArtGenerator() {
     return musicSamples[hash % musicSamples.length]
   }
 
+  const generateMusicAnalysis = (language: string, genre: string, duration: number): MusicAnalysis => {
+    const keys = [
+      "C Major",
+      "D Major",
+      "E Major",
+      "F Major",
+      "G Major",
+      "A Major",
+      "B Major",
+      "C Minor",
+      "D Minor",
+      "E Minor",
+      "F Minor",
+      "G Minor",
+      "A Minor",
+      "B Minor",
+    ]
+    const timeSignatures = ["4/4", "3/4", "2/4", "6/8"]
+
+    // Generate analysis based on genre characteristics
+    const genreCharacteristics = {
+      Classical: { tempo: [60, 120], energy: [30, 60], danceability: [20, 40], valence: [40, 70] },
+      Pop: { tempo: [100, 130], energy: [60, 90], danceability: [60, 90], valence: [60, 90] },
+      Rock: { tempo: [110, 140], energy: [70, 95], danceability: [50, 80], valence: [50, 80] },
+      Jazz: { tempo: [80, 140], energy: [40, 70], danceability: [40, 70], valence: [50, 80] },
+      Electronic: { tempo: [120, 150], energy: [70, 95], danceability: [80, 95], valence: [60, 85] },
+      Bollywood: { tempo: [90, 130], energy: [70, 90], danceability: [70, 95], valence: [70, 95] },
+      Classical: { tempo: [60, 100], energy: [30, 60], danceability: [20, 40], valence: [40, 70] },
+    }
+
+    const characteristics =
+      genreCharacteristics[genre as keyof typeof genreCharacteristics] || genreCharacteristics["Pop"]
+
+    return {
+      tempo: Math.floor(
+        Math.random() * (characteristics.tempo[1] - characteristics.tempo[0]) + characteristics.tempo[0],
+      ),
+      key: keys[Math.floor(Math.random() * keys.length)],
+      energy: Math.floor(
+        Math.random() * (characteristics.energy[1] - characteristics.energy[0]) + characteristics.energy[0],
+      ),
+      danceability: Math.floor(
+        Math.random() * (characteristics.danceability[1] - characteristics.danceability[0]) +
+          characteristics.danceability[0],
+      ),
+      valence: Math.floor(
+        Math.random() * (characteristics.valence[1] - characteristics.valence[0]) + characteristics.valence[0],
+      ),
+      loudness: Math.random() * -20 - 5, // -25 to -5 dB
+      duration: duration,
+      timeSignature: timeSignatures[Math.floor(Math.random() * timeSignatures.length)],
+      genre: genre,
+      language: MUSIC_LANGUAGES.find((lang) => lang.code === language)?.name || "English",
+    }
+  }
+
   const handleImageGeneration = async () => {
     if (!imagePrompt.trim()) return
 
@@ -282,7 +364,9 @@ export function ArtGenerator() {
       setGeneratedMusic(null)
       setTimeout(() => {
         const newMusic = generateMusicWithLanguage(musicPrompt, musicLanguage, musicGenre, musicDuration[0], musicType)
+        const newAnalysis = generateMusicAnalysis(musicLanguage, musicGenre, musicDuration[0])
         setGeneratedMusic(newMusic)
+        setMusicAnalysis(newAnalysis)
         setIsGenerating(false)
       }, 2000)
     } else if (activeTab === "text") {
@@ -401,7 +485,7 @@ export function ArtGenerator() {
   const isBackup = lastResult?.isBackup
 
   return (
-    <div className="mx-auto max-w-4xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
+    <div className="mx-auto max-w-6xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
       <Tabs defaultValue="image" onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="image" className="text-xs sm:text-sm">
@@ -587,217 +671,223 @@ export function ArtGenerator() {
         </TabsContent>
 
         <TabsContent value="music" className="mt-4 sm:mt-6">
-          <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-            <div className="space-y-4 sm:space-y-6">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center text-base">
-                    <Globe className="mr-2 h-4 w-4" />
-                    Multi-Language Music Generation
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Generate music in any language with cultural authenticity
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="music-prompt" className="text-sm font-medium">
-                      Describe your music
-                    </Label>
-                    <Textarea
-                      id="music-prompt"
-                      placeholder="A soulful melody about love and longing, with traditional instruments..."
-                      value={musicPrompt}
-                      onChange={(e) => setMusicPrompt(e.target.value)}
-                      className="text-sm min-h-[80px]"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+              <div className="space-y-4 sm:space-y-6">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center text-base">
+                      <Globe className="mr-2 h-4 w-4" />
+                      Multi-Language Music Generation
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Generate music in any language with cultural authenticity
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
-                        <Globe className="mr-1 h-3 w-3" />
-                        Language
+                      <Label htmlFor="music-prompt" className="text-sm font-medium">
+                        Describe your music
                       </Label>
-                      <Select value={musicLanguage} onValueChange={setMusicLanguage}>
-                        <SelectTrigger className="text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {MUSIC_LANGUAGES.map((lang) => (
-                            <SelectItem key={lang.code} value={lang.code} className="text-xs">
-                              <span className="flex items-center">
-                                <span className="mr-2">{lang.flag}</span>
-                                {lang.name}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
-                        <Music className="mr-1 h-3 w-3" />
-                        Genre
-                      </Label>
-                      <Select value={musicGenre} onValueChange={setMusicGenre}>
-                        <SelectTrigger className="text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {MUSIC_GENRES.map((genre) => (
-                            <SelectItem key={genre} value={genre} className="text-xs">
-                              {genre}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
-                        <Mic className="mr-1 h-3 w-3" />
-                        Type
-                      </Label>
-                      <Select value={musicType} onValueChange={setMusicType}>
-                        <SelectTrigger className="text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="song" className="text-xs">
-                            🎵 Song with Vocals
-                          </SelectItem>
-                          <SelectItem value="instrumental" className="text-xs">
-                            🎼 Instrumental
-                          </SelectItem>
-                          <SelectItem value="beat" className="text-xs">
-                            🥁 Beat/Rhythm
-                          </SelectItem>
-                          <SelectItem value="melody" className="text-xs">
-                            🎹 Melody
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label className="text-sm font-medium flex items-center">
-                          <Volume2 className="mr-1 h-3 w-3" />
-                          Duration
-                        </Label>
-                        <span className="text-xs text-muted-foreground">{musicDuration[0]}s</span>
-                      </div>
-                      <Slider
-                        min={15}
-                        max={180}
-                        step={15}
-                        value={musicDuration}
-                        onValueChange={setMusicDuration}
-                        className="w-full"
+                      <Textarea
+                        id="music-prompt"
+                        placeholder="A soulful melody about love and longing, with traditional instruments..."
+                        value={musicPrompt}
+                        onChange={(e) => setMusicPrompt(e.target.value)}
+                        className="text-sm min-h-[80px]"
+                        rows={3}
                       />
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>15s</span>
-                        <span>3min</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center">
+                          <Globe className="mr-1 h-3 w-3" />
+                          Language
+                        </Label>
+                        <Select value={musicLanguage} onValueChange={setMusicLanguage}>
+                          <SelectTrigger className="text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {MUSIC_LANGUAGES.map((lang) => (
+                              <SelectItem key={lang.code} value={lang.code} className="text-xs">
+                                <span className="flex items-center">
+                                  <span className="mr-2">{lang.flag}</span>
+                                  {lang.name}
+                                </span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center">
+                          <Music className="mr-1 h-3 w-3" />
+                          Genre
+                        </Label>
+                        <Select value={musicGenre} onValueChange={setMusicGenre}>
+                          <SelectTrigger className="text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {MUSIC_GENRES.map((genre) => (
+                              <SelectItem key={genre} value={genre} className="text-xs">
+                                {genre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              <Button
-                onClick={handleGenerate}
-                disabled={!musicPrompt || isGenerating}
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name} Music...
-                  </>
-                ) : (
-                  <>
-                    <Music className="mr-2 h-4 w-4" />
-                    Generate {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag} {musicGenre} Music
-                  </>
-                )}
-              </Button>
-            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium flex items-center">
+                          <Mic className="mr-1 h-3 w-3" />
+                          Type
+                        </Label>
+                        <Select value={musicType} onValueChange={setMusicType}>
+                          <SelectTrigger className="text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="song" className="text-xs">
+                              🎵 Song with Vocals
+                            </SelectItem>
+                            <SelectItem value="instrumental" className="text-xs">
+                              🎼 Instrumental
+                            </SelectItem>
+                            <SelectItem value="beat" className="text-xs">
+                              🥁 Beat/Rhythm
+                            </SelectItem>
+                            <SelectItem value="melody" className="text-xs">
+                              🎹 Melody
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
-              {generatedMusic ? (
-                <div className="w-full space-y-4 text-center">
-                  <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                    <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-base font-medium sm:text-lg">Generated Music</h3>
-                    <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-                      <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag}</span>
-                      <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name}</span>
-                      <span>•</span>
-                      <span>{musicGenre}</span>
-                      <span>•</span>
-                      <span>{musicDuration[0]}s</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <Label className="text-sm font-medium flex items-center">
+                            <Volume2 className="mr-1 h-3 w-3" />
+                            Duration
+                          </Label>
+                          <span className="text-xs text-muted-foreground">{musicDuration[0]}s</span>
+                        </div>
+                        <Slider
+                          min={15}
+                          max={180}
+                          step={15}
+                          value={musicDuration}
+                          onValueChange={setMusicDuration}
+                          className="w-full"
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>15s</span>
+                          <span>3min</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Button
+                  onClick={handleGenerate}
+                  disabled={!musicPrompt || isGenerating}
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name} Music...
+                    </>
+                  ) : (
+                    <>
+                      <Music className="mr-2 h-4 w-4" />
+                      Generate {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag} {musicGenre} Music
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
+                {generatedMusic ? (
+                  <div className="w-full space-y-4 text-center">
+                    <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                      <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-base font-medium sm:text-lg">Generated Music</h3>
+                      <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                        <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag}</span>
+                        <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name}</span>
+                        <span>•</span>
+                        <span>{musicGenre}</span>
+                        <span>•</span>
+                        <span>{musicDuration[0]}s</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRegenerate}
+                        className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                      >
+                        <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">Regenerate</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload("music")}
+                        className="flex-1 min-w-0 sm:flex-none"
+                      >
+                        <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">Download</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleShare("music")}
+                        className="flex-1 min-w-0 sm:flex-none"
+                      >
+                        <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                        <span className="text-xs sm:text-sm">Share</span>
+                      </Button>
                     </div>
                   </div>
-                  <audio controls src={generatedMusic} className="w-full max-w-xs" />
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRegenerate}
-                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
-                    >
-                      <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                      <span className="text-xs sm:text-sm">Regenerate</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload("music")}
-                      className="flex-1 min-w-0 sm:flex-none"
-                    >
-                      <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                      <span className="text-xs sm:text-sm">Download</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleShare("music")}
-                      className="flex-1 min-w-0 sm:flex-none"
-                    >
-                      <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                      <span className="text-xs sm:text-sm">Share</span>
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                    <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
-                  </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">Multi-Language Music Generator</h3>
-                  <p className="text-xs text-muted-foreground sm:text-sm mb-3">
-                    Create music in any language with cultural authenticity
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-1 text-xs">
-                    {MUSIC_LANGUAGES.slice(0, 8).map((lang) => (
-                      <Badge key={lang.code} variant="secondary" className="text-xs">
-                        {lang.flag} {lang.name}
+                ) : (
+                  <div className="text-center">
+                    <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                      <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
+                    </div>
+                    <h3 className="mb-1 text-base font-medium sm:text-lg">Multi-Language Music Generator</h3>
+                    <p className="text-xs text-muted-foreground sm:text-sm mb-3">
+                      Create music in any language with cultural authenticity
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-1 text-xs">
+                      {MUSIC_LANGUAGES.slice(0, 8).map((lang) => (
+                        <Badge key={lang.code} variant="secondary" className="text-xs">
+                          {lang.flag} {lang.name}
+                        </Badge>
+                      ))}
+                      <Badge variant="outline" className="text-xs">
+                        +{MUSIC_LANGUAGES.length - 8} more
                       </Badge>
-                    ))}
-                    <Badge variant="outline" className="text-xs">
-                      +{MUSIC_LANGUAGES.length - 8} more
-                    </Badge>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
+
+            {/* Music Visualizer and Analysis */}
+            {generatedMusic && (
+              <MusicVisualizer audioUrl={generatedMusic} analysis={musicAnalysis} onAnalysisUpdate={setMusicAnalysis} />
+            )}
           </div>
         </TabsContent>
 
