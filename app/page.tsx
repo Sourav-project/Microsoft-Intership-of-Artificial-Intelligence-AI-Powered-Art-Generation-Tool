@@ -4,6 +4,7 @@ import { ArtGallery } from "@/components/art-gallery"
 import { FeatureCard } from "@/components/feature-card"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, Paintbrush, Music, FileText, Sparkles, Brain, Layers } from "lucide-react"
+import { ApiStatus } from "@/components/api-status"
 
 export default function Home() {
   return (
@@ -99,6 +100,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 sm:mt-16">
+            <ApiStatus />
             <ArtGenerator />
           </div>
         </div>

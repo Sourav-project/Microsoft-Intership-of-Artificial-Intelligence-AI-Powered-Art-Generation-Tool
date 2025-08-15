@@ -7,7 +7,26 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, RefreshCw, Download, Share2, Paintbrush, Music, FileText, Copy } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import {
+  Loader2,
+  RefreshCw,
+  Download,
+  Share2,
+  Paintbrush,
+  Music,
+  FileText,
+  Copy,
+  AlertCircle,
+  Info,
+} from "lucide-react"
+import {
+  generateAIImage,
+  generatePlaceholderImage,
+  type ImageGenerationOptions,
+  type ImageGenerationResult,
+} from "@/lib/ai-image-generation"
 
 export function ArtGenerator() {
   const [imagePrompt, setImagePrompt] = useState("")
@@ -20,12 +39,12 @@ export function ArtGenerator() {
   const [generatedMusic, setGeneratedMusic] = useState<string | null>(null)
   const [generatedText, setGeneratedText] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("image")
+  const [error, setError] = useState<string | null>(null)
+  const [lastResult, setLastResult] = useState<ImageGenerationResult | null>(null)
 
-  const generateRandomPlaceholder = (seed: string, type: "image" | "music" | "text") => {
+  const generateRandomPlaceholder = (seed: string, type: "music" | "text") => {
     const hash = Array.from(seed).reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000
-    if (type === "image") {
-      return `/placeholder.svg?height=512&width=512&text=AI+Art+${hash}`
-    } else if (type === "music") {
+    if (type === "music") {
       return `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(hash % 16) + 1}.mp3`
     } else if (type === "text") {
       const mockTexts = [
@@ -39,52 +58,102 @@ export function ArtGenerator() {
     return ""
   }
 
-  const handleGenerate = () => {
-    setIsGenerating(true)
-    setGeneratedImage(null)
-    setGeneratedMusic(null)
-    setGeneratedText(null)
+  const handleImageGeneration = async () => {
+    if (!imagePrompt.trim()) return
 
-    setTimeout(() => {
-      if (activeTab === "image") {
-        if (!imagePrompt) {
-          setIsGenerating(false)
-          return
-        }
-        const newImage = generateRandomPlaceholder(imagePrompt + style + complexity[0] + Date.now(), "image")
-        setGeneratedImage(newImage)
-      } else if (activeTab === "music") {
-        if (!musicPrompt) {
-          setIsGenerating(false)
-          return
-        }
+    setIsGenerating(true)
+    setError(null)
+    setGeneratedImage(null)
+    setLastResult(null)
+
+    try {
+      // Determine image size based on complexity
+      let size: "1024x1024" | "1792x1024" | "1024x1792" = "1024x1024"
+      if (complexity[0] > 70) {
+        size = "1792x1024" // Landscape for high complexity
+      } else if (complexity[0] < 30) {
+        size = "1024x1792" // Portrait for low complexity
+      }
+
+      const options: ImageGenerationOptions = {
+        prompt: imagePrompt.trim(),
+        style: style,
+        size: size,
+        quality: complexity[0] > 50 ? "hd" : "standard",
+      }
+
+      console.log("Starting image generation with options:", options)
+
+      // Try real AI generation first
+      let result = await generateAIImage(options)
+
+      // If real AI fails, use fallback
+      if (!result.success) {
+        console.warn("AI generation failed, using fallback:", result.error)
+        result = await generatePlaceholderImage(imagePrompt, style)
+      }
+
+      setLastResult(result)
+
+      if (result.success && result.imageUrl) {
+        setGeneratedImage(result.imageUrl)
+        console.log("Image generation successful:", result.metadata)
+      } else {
+        setError(result.error || "Failed to generate image")
+      }
+    } catch (err) {
+      console.error("Generation error:", err)
+      setError("An unexpected error occurred during image generation")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleGenerate = () => {
+    if (activeTab === "image") {
+      handleImageGeneration()
+    } else if (activeTab === "music") {
+      if (!musicPrompt) return
+      setIsGenerating(true)
+      setGeneratedMusic(null)
+      setTimeout(() => {
         const newMusic = generateRandomPlaceholder(musicPrompt + Date.now(), "music")
         setGeneratedMusic(newMusic)
-      } else if (activeTab === "text") {
-        if (!textPrompt) {
-          setIsGenerating(false)
-          return
-        }
+        setIsGenerating(false)
+      }, 2000)
+    } else if (activeTab === "text") {
+      if (!textPrompt) return
+      setIsGenerating(true)
+      setGeneratedText(null)
+      setTimeout(() => {
         const newText = generateRandomPlaceholder(textPrompt + Date.now(), "text")
         setGeneratedText(newText)
-      }
-      setIsGenerating(false)
-    }, 2000)
+        setIsGenerating(false)
+      }, 2000)
+    }
   }
 
   const handleRegenerate = () => {
     handleGenerate()
   }
 
-  const handleDownload = (type: "image" | "music" | "text") => {
+  const handleDownload = async (type: "image" | "music" | "text") => {
     if (type === "image" && generatedImage) {
-      const link = document.createElement("a")
-      link.href = generatedImage
-      link.download = "ai-artwork.png"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      alert("Image download initiated!")
+      try {
+        const response = await fetch(generatedImage)
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `ai-artwork-${Date.now()}.png`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error("Download failed:", error)
+        alert("Download failed. Please try right-clicking the image and selecting 'Save image as...'")
+      }
     } else if (type === "music" && generatedMusic) {
       const link = document.createElement("a")
       link.href = generatedMusic
@@ -92,7 +161,6 @@ export function ArtGenerator() {
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      alert("Music download initiated!")
     } else if (type === "text" && generatedText) {
       const blob = new Blob([generatedText], { type: "text/plain" })
       const url = URL.createObjectURL(blob)
@@ -103,28 +171,65 @@ export function ArtGenerator() {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      alert("Text download initiated!")
     }
   }
 
-  const handleShare = (type: "image" | "music" | "text") => {
-    let contentToShare = ""
-    if (type === "image" && generatedImage) contentToShare = generatedImage
-    else if (type === "music" && generatedMusic) contentToShare = generatedMusic
-    else if (type === "text" && generatedText) contentToShare = generatedText
+  const handleShare = async (type: "image" | "music" | "text") => {
+    let shareData: ShareData = {}
 
-    if (contentToShare) {
-      alert(
-        `Sharing this ${type}: ${contentToShare.substring(0, 50)}...\n(In a real app, this would open a share dialog)`,
-      )
+    if (type === "image" && generatedImage) {
+      shareData = {
+        title: "AI Generated Artwork",
+        text: `Check out this AI-generated artwork: "${imagePrompt}"`,
+        url: generatedImage,
+      }
+    } else if (type === "music" && generatedMusic) {
+      shareData = {
+        title: "AI Generated Music",
+        text: `Listen to this AI-generated music: "${musicPrompt}"`,
+        url: generatedMusic,
+      }
+    } else if (type === "text" && generatedText) {
+      shareData = {
+        title: "AI Generated Writing",
+        text: generatedText.substring(0, 100) + "...",
+      }
+    }
+
+    if (navigator.share && Object.keys(shareData).length > 0) {
+      try {
+        await navigator.share(shareData)
+      } catch (error) {
+        console.log("Share cancelled or failed:", error)
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      const textToShare = `${shareData.title}\n${shareData.text}\n${shareData.url || ""}`
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(textToShare)
+        alert("Share content copied to clipboard!")
+      } else {
+        alert(`Share this content:\n${textToShare}`)
+      }
     }
   }
 
-  const handleCopyText = () => {
-    if (generatedText) {
-      navigator.clipboard.writeText(generatedText)
-      alert("Text copied to clipboard!")
+  const handleCopyText = async () => {
+    if (generatedText && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(generatedText)
+        alert("Text copied to clipboard!")
+      } catch (error) {
+        console.error("Copy failed:", error)
+        alert("Copy failed. Please select and copy the text manually.")
+      }
     }
+  }
+
+  const getQualityInfo = () => {
+    const quality = complexity[0] > 50 ? "HD" : "Standard"
+    const size = complexity[0] > 70 ? "Landscape" : complexity[0] < 30 ? "Portrait" : "Square"
+    return `${quality} Quality • ${size} Format`
   }
 
   return (
@@ -154,7 +259,12 @@ export function ArtGenerator() {
                   value={imagePrompt}
                   onChange={(e) => setImagePrompt(e.target.value)}
                   className="text-sm"
+                  maxLength={1000}
                 />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Be specific and descriptive for best results</span>
+                  <span>{imagePrompt.length}/1000</span>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -176,27 +286,60 @@ export function ArtGenerator() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label htmlFor="complexity" className="text-sm font-medium">
-                    Complexity
+                    Quality & Detail
                   </Label>
                   <span className="text-xs text-muted-foreground sm:text-sm">{complexity[0]}%</span>
                 </div>
                 <Slider id="complexity" min={0} max={100} step={1} value={complexity} onValueChange={setComplexity} />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{getQualityInfo()}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {complexity[0] > 50 ? "Slower" : "Faster"}
+                  </Badge>
+                </div>
               </div>
 
               <Button
                 onClick={handleGenerate}
-                disabled={!imagePrompt || isGenerating}
+                disabled={!imagePrompt.trim() || isGenerating}
                 className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
+                    Generating with AI...
                   </>
                 ) : (
-                  "Generate Image"
+                  "Generate with AI"
                 )}
               </Button>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {lastResult && lastResult.success && lastResult.metadata && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>Generated in {lastResult.metadata.generationTime}ms</span>
+                        <Badge variant="outline">{lastResult.metadata.model}</Badge>
+                      </div>
+                      {lastResult.metadata.revisedPrompt && (
+                        <details className="text-xs">
+                          <summary className="cursor-pointer hover:text-foreground">AI Enhanced Prompt</summary>
+                          <p className="mt-1 text-muted-foreground">{lastResult.metadata.revisedPrompt}</p>
+                        </details>
+                      )}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
@@ -205,10 +348,10 @@ export function ArtGenerator() {
                   <div className="relative aspect-square w-full overflow-hidden rounded-lg">
                     <img
                       src={generatedImage || "/placeholder.svg"}
-                      alt="Generated artwork"
+                      alt="AI Generated artwork"
                       className="h-full w-full object-cover"
-                      width={512}
-                      height={512}
+                      width={1024}
+                      height={1024}
                     />
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 pb-safe">
@@ -217,6 +360,7 @@ export function ArtGenerator() {
                       size="sm"
                       onClick={handleRegenerate}
                       className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                      disabled={isGenerating}
                     >
                       <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Regenerate</span>
@@ -246,9 +390,9 @@ export function ArtGenerator() {
                   <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900">
                     <Paintbrush className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">No Image Generated Yet</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">Ready to Create AI Art</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">
-                    Enter a prompt and click generate to create your artwork
+                    Enter a detailed prompt and click generate to create your unique artwork with AI
                   </p>
                 </div>
               )}
