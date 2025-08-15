@@ -28,16 +28,18 @@ export default function Home() {
               writing with the power of AI.
             </p>
             <div className="mt-8 flex flex-col items-start gap-4 sm:mt-10 sm:flex-row sm:items-center sm:gap-x-6">
-              <Link href="#generator" passHref>
-                <Button
-                  size="lg"
-                  className="w-full create-button ripple sm:w-auto text-white border-0 shadow-2xl button-text-glow transition-all duration-500 hover:scale-105"
-                >
-                  <Zap className="mr-2 h-4 w-4" />
-                  Start Creating
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              <div className="start-creating-button-container">
+                <Link href="#generator" passHref>
+                  <Button
+                    size="lg"
+                    className="w-full start-creating-button start-creating-button-sparkle ripple sm:w-auto button-text-glow transition-all duration-500 hover:scale-105"
+                  >
+                    <Zap className="mr-2 h-4 w-4" />
+                    <span className="button-text-glow">Start Creating</span>
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
               <Link
                 href="#learn-more"
                 className="text-base font-semibold text-white hover:text-white/80 transition-colors duration-300 drop-shadow-md"
