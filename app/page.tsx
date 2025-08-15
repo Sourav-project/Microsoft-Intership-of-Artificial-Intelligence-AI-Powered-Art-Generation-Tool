@@ -31,7 +31,7 @@ export default function Home() {
               <Link href="#generator" passHref>
                 <Button
                   size="lg"
-                  className="w-full glow-button ai-gradient-purple ripple sm:w-auto text-white border-0 shadow-2xl"
+                  className="w-full create-button ripple sm:w-auto text-white border-0 shadow-2xl button-text-glow transition-all duration-500 hover:scale-105"
                 >
                   <Zap className="mr-2 h-4 w-4" />
                   Start Creating
@@ -139,17 +139,19 @@ export default function Home() {
 
       {/* Gallery Section */}
       <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-bold tracking-tight gradient-text sm:text-3xl lg:text-4xl">Gallery</h2>
-          <p className="mt-3 text-base text-muted-foreground sm:mt-4 sm:text-lg">
-            Explore a collection of AI-generated artwork
-          </p>
-        </div>
+        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl font-bold tracking-tight gradient-text sm:text-3xl lg:text-4xl">Gallery</h2>
+            <p className="mt-3 text-base text-muted-foreground sm:mt-4 sm:text-lg">
+              Explore a collection of AI-generated artwork
+            </p>
+          </div>
 
-        <div className="mt-12 sm:mt-16">
-          <div className="glow-card rounded-2xl p-1">
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-6">
-              <ArtGallery />
+          <div className="mt-12 sm:mt-16">
+            <div className="glow-card rounded-2xl p-1">
+              <div className="bg-white dark:bg-slate-800 rounded-xl p-6">
+                <ArtGallery />
+              </div>
             </div>
           </div>
         </div>
@@ -232,7 +234,10 @@ export default function Home() {
             </p>
             <div className="mt-8 sm:mt-10">
               <Link href="#generator" passHref>
-                <Button size="lg" className="w-full glow-button ai-gradient-pink ripple sm:w-auto text-white border-0">
+                <Button
+                  size="lg"
+                  className="w-full generate-button ripple sm:w-auto text-white border-0 button-text-glow transition-all duration-500 hover:scale-105"
+                >
                   <Target className="mr-2 h-4 w-4" />
                   Get Started Now
                   <Sparkles className="ml-2 h-4 w-4" />

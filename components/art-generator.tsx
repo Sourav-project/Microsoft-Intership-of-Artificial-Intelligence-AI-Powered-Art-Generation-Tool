@@ -555,7 +555,7 @@ export function ArtGenerator() {
               <Button
                 onClick={handleGenerate}
                 disabled={!imagePrompt.trim() || isGenerating}
-                className="w-full glow-button ai-gradient-purple text-white border-0 ripple"
+                className="w-full generate-button text-white border-0 ripple button-text-glow transition-all duration-500 hover:scale-105"
               >
                 {isGenerating ? (
                   <>
@@ -976,7 +976,7 @@ export function ArtGenerator() {
               <Button
                 onClick={handleGenerate}
                 disabled={!textPrompt || isGenerating}
-                className="w-full glow-button ai-gradient-pink text-white border-0 ripple"
+                className="w-full create-button text-white border-0 ripple button-text-glow transition-all duration-500 hover:scale-105"
               >
                 {isGenerating ? (
                   <>

@@ -70,23 +70,28 @@
 
 /* Custom AI Art Generation Theme */
 @layer components {
-  /* Glowing Button Effects */
+  /* Animated Gradient Button Effects - Like in the Video! */
   .glow-button {
-    @apply relative overflow-hidden transition-all duration-300 ease-out;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.3);
+    @apply relative overflow-hidden transition-all duration-500 ease-out;
+    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
+    box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.4);
+    border: none;
   }
 
   .glow-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(102, 126, 234, 0.5);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 35px 0 rgba(102, 126, 234, 0.6);
+    animation-duration: 4s; /* Speed up animation on hover */
   }
 
   .glow-button:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.6);
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 8px 25px 0 rgba(102, 126, 234, 0.7);
   }
 
+  /* Sweep Effect */
   .glow-button::before {
     content: "";
     position: absolute;
@@ -94,46 +99,94 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s ease;
   }
 
   .glow-button:hover::before {
     left: 100%;
   }
 
-  /* AI Theme Gradient Buttons */
+  /* AI Theme Gradient Buttons with Animation */
   .ai-gradient-purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    box-shadow: 0 4px 15px 0 rgba(102, 126, 234, 0.3);
+    background: linear-gradient(-45deg, #667eea, #764ba2, #8b5cf6, #a855f7);
+    background-size: 400% 400%;
+    animation: gradientShift 6s ease infinite;
+    box-shadow: 0 4px 20px 0 rgba(102, 126, 234, 0.4);
+    border: none;
   }
 
   .ai-gradient-purple:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-    box-shadow: 0 8px 25px 0 rgba(102, 126, 234, 0.5);
-    transform: translateY(-2px);
+    background: linear-gradient(-45deg, #5a67d8, #6b46c1, #7c3aed, #9333ea);
+    background-size: 400% 400%;
+    animation: gradientShift 3s ease infinite;
+    box-shadow: 0 8px 30px 0 rgba(102, 126, 234, 0.6);
+    transform: translateY(-3px) scale(1.02);
   }
 
   .ai-gradient-pink {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    box-shadow: 0 4px 15px 0 rgba(240, 147, 251, 0.3);
+    background: linear-gradient(-45deg, #f093fb, #f5576c, #ec4899, #be185d);
+    background-size: 400% 400%;
+    animation: gradientShift 7s ease infinite;
+    box-shadow: 0 4px 20px 0 rgba(240, 147, 251, 0.4);
+    border: none;
   }
 
   .ai-gradient-pink:hover {
-    background: linear-gradient(135deg, #ed64a6 0%, #e53e3e 100%);
-    box-shadow: 0 8px 25px 0 rgba(240, 147, 251, 0.5);
-    transform: translateY(-2px);
+    background: linear-gradient(-45deg, #ed64a6, #e53e3e, #db2777, #a21caf);
+    background-size: 400% 400%;
+    animation: gradientShift 3.5s ease infinite;
+    box-shadow: 0 8px 30px 0 rgba(240, 147, 251, 0.6);
+    transform: translateY(-3px) scale(1.02);
   }
 
   .ai-gradient-blue {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    box-shadow: 0 4px 15px 0 rgba(79, 172, 254, 0.3);
+    background: linear-gradient(-45deg, #4facfe, #00f2fe, #06b6d4, #0891b2);
+    background-size: 400% 400%;
+    animation: gradientShift 5s ease infinite;
+    box-shadow: 0 4px 20px 0 rgba(79, 172, 254, 0.4);
+    border: none;
   }
 
   .ai-gradient-blue:hover {
-    background: linear-gradient(135deg, #3182ce 0%, #0bc5ea 100%);
-    box-shadow: 0 8px 25px 0 rgba(79, 172, 254, 0.5);
-    transform: translateY(-2px);
+    background: linear-gradient(-45deg, #3182ce, #0bc5ea, #0284c7, #0369a1);
+    background-size: 400% 400%;
+    animation: gradientShift 2.5s ease infinite;
+    box-shadow: 0 8px 30px 0 rgba(79, 172, 254, 0.6);
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  /* New Animated Gradient Classes for Different Button Types */
+  .ai-gradient-green {
+    background: linear-gradient(-45deg, #10b981, #059669, #34d399, #6ee7b7);
+    background-size: 400% 400%;
+    animation: gradientShift 6.5s ease infinite;
+    box-shadow: 0 4px 20px 0 rgba(16, 185, 129, 0.4);
+    border: none;
+  }
+
+  .ai-gradient-green:hover {
+    background: linear-gradient(-45deg, #047857, #065f46, #10b981, #34d399);
+    background-size: 400% 400%;
+    animation: gradientShift 3s ease infinite;
+    box-shadow: 0 8px 30px 0 rgba(16, 185, 129, 0.6);
+    transform: translateY(-3px) scale(1.02);
+  }
+
+  .ai-gradient-orange {
+    background: linear-gradient(-45deg, #f97316, #ea580c, #fb923c, #fdba74);
+    background-size: 400% 400%;
+    animation: gradientShift 5.5s ease infinite;
+    box-shadow: 0 4px 20px 0 rgba(249, 115, 22, 0.4);
+    border: none;
+  }
+
+  .ai-gradient-orange:hover {
+    background: linear-gradient(-45deg, #ea580c, #c2410c, #f97316, #fb923c);
+    background-size: 400% 400%;
+    animation: gradientShift 2.8s ease infinite;
+    box-shadow: 0 8px 30px 0 rgba(249, 115, 22, 0.6);
+    transform: translateY(-3px) scale(1.02);
   }
 
   /* Glowing Cards */
@@ -161,8 +214,14 @@
     0% {
       background-position: 0% 50%;
     }
-    50% {
+    25% {
       background-position: 100% 50%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    75% {
+      background-position: 0% 100%;
     }
     100% {
       background-position: 0% 50%;
@@ -227,14 +286,20 @@
     text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #667eea, 0 0 20px #667eea;
   }
 
-  /* Glowing Border */
+  /* Glowing Border with Animation */
   .glow-border {
     border: 2px solid transparent;
-    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box;
+    background: linear-gradient(white, white) padding-box, linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c)
+      border-box;
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
   }
 
   .glow-border:hover {
-    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #5a67d8, #6b46c1) border-box;
+    background: linear-gradient(white, white) padding-box, linear-gradient(-45deg, #5a67d8, #6b46c1, #ed64a6, #e53e3e)
+      border-box;
+    background-size: 400% 400%;
+    animation: gradientShift 4s ease infinite;
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
   }
 
@@ -272,7 +337,7 @@
     }
   }
 
-  /* Ripple Effect */
+  /* Enhanced Ripple Effect */
   .ripple {
     position: relative;
     overflow: hidden;
@@ -286,14 +351,24 @@
     width: 0;
     height: 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
     transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+    transition: width 0.8s ease, height 0.8s ease;
   }
 
   .ripple:active::after {
-    width: 300px;
-    height: 300px;
+    width: 400px;
+    height: 400px;
+  }
+
+  /* Button Text Animation */
+  .button-text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    transition: text-shadow 0.3s ease;
+  }
+
+  .button-text-glow:hover {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1);
   }
 }
 
@@ -306,4 +381,23 @@
 .dark .shimmer {
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
+}
+
+/* Special Button Animations for Different Actions */
+.generate-button {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #8b5cf6, #a855f7, #c084fc);
+  background-size: 500% 500%;
+  animation: gradientShift 4s ease infinite;
+}
+
+.create-button {
+  background: linear-gradient(-45deg, #f093fb, #f5576c, #ec4899, #be185d, #a21caf);
+  background-size: 500% 500%;
+  animation: gradientShift 5s ease infinite;
+}
+
+.load-more-button {
+  background: linear-gradient(-45deg, #4facfe, #00f2fe, #06b6d4, #0891b2, #0e7490);
+  background-size: 500% 500%;
+  animation: gradientShift 6s ease infinite;
 }

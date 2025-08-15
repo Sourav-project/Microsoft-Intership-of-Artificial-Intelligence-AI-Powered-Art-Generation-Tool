@@ -204,7 +204,7 @@ export function ArtGallery() {
           variant="outline"
           size="lg"
           onClick={handleLoadMore}
-          className="w-full sm:w-auto glow-button ai-gradient-blue text-white border-0 ripple bg-transparent"
+          className="w-full sm:w-auto load-more-button text-white border-0 ripple button-text-glow transition-all duration-500 hover:scale-105 bg-transparent"
         >
           <Sparkles className="mr-2 h-4 w-4" />
           Load More Creations
