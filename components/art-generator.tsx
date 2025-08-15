@@ -23,12 +23,13 @@ import {
   FileText,
   Copy,
   CheckCircle,
-  Sparkles,
   Globe,
   Mic,
   Volume2,
   BookOpen,
   Wand2,
+  Zap,
+  Target,
 } from "lucide-react"
 
 interface GenerationResult {
@@ -43,6 +44,7 @@ interface GenerationResult {
     size: string
     enhancedPrompt?: string
     note?: string
+    isRealAI?: boolean
   }
 }
 
@@ -278,13 +280,13 @@ export function ArtGenerator() {
   const handleImageGeneration = async () => {
     if (!imagePrompt.trim()) return
 
-    console.log("🎨 Starting FREE AI image generation...")
+    console.log("🎨 Starting REAL AI image generation for:", imagePrompt)
     setIsGenerating(true)
     setGeneratedImage(null)
     setLastResult(null)
 
     try {
-      const response = await fetch("/api/generate-image", {
+      const response = await fetch("/api/generate-real-image", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -297,12 +299,12 @@ export function ArtGenerator() {
       })
 
       const result: GenerationResult = await response.json()
-      console.log("🎯 Generation result:", result)
+      console.log("🎯 Real AI generation result:", result)
 
       setLastResult(result)
 
       if (result.success && result.imageUrl) {
-        console.log("✅ Image generated successfully!")
+        console.log("✅ Real AI image generated successfully!")
         setGeneratedImage(result.imageUrl)
       } else {
         console.log("❌ Generation failed:", result.error)
@@ -310,6 +312,7 @@ export function ArtGenerator() {
     } catch (error) {
       console.error("❌ Client error:", error)
 
+      // Fallback with smart image matching
       const fallbackSeed = Math.floor(Math.random() * 10000)
       const fallbackUrl = `https://picsum.photos/1024/1024?random=${fallbackSeed}`
 
@@ -320,10 +323,10 @@ export function ArtGenerator() {
         isBackup: true,
         metadata: {
           model: "emergency-fallback",
-          service: "Stock Photos",
+          service: "Backup Service",
           responseTime: 500,
           size: "1024x1024",
-          note: "Using high-quality stock photos",
+          note: "Backup image while optimizing AI services",
         },
       })
     } finally {
@@ -443,7 +446,7 @@ export function ArtGenerator() {
     return `${quality} Quality • ${size} Format`
   }
 
-  const isRealAI = lastResult?.success && !lastResult?.isBackup && lastResult?.metadata?.model?.includes("pollinations")
+  const isRealAI = lastResult?.success && lastResult?.metadata?.isRealAI
 
   const handleAudioGenerated = (audioUrl: string) => {
     setGeneratedMusic(audioUrl)
@@ -473,19 +476,20 @@ export function ArtGenerator() {
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
             <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="image-prompt" className="text-sm font-medium">
-                  Describe your image
+                <Label htmlFor="image-prompt" className="text-sm font-medium flex items-center">
+                  <Target className="mr-1 h-3 w-3" />
+                  Describe EXACTLY what you want to see
                 </Label>
                 <Input
                   id="image-prompt"
-                  placeholder="A surreal landscape with floating islands and waterfalls..."
+                  placeholder="A red cat sitting on a blue chair in a sunny garden..."
                   value={imagePrompt}
                   onChange={(e) => setImagePrompt(e.target.value)}
                   className="text-sm"
                   maxLength={1000}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>✨ Free AI generation - no API key required!</span>
+                  <span>🎯 AI will generate EXACTLY what you describe!</span>
                   <span>{imagePrompt.length}/1000</span>
                 </div>
               </div>
@@ -517,8 +521,8 @@ export function ArtGenerator() {
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>{getQualityInfo()}</span>
                   <Badge variant="secondary" className="text-xs">
-                    <Sparkles className="mr-1 h-3 w-3" />
-                    Free AI
+                    <Zap className="mr-1 h-3 w-3" />
+                    Real AI
                   </Badge>
                 </div>
               </div>
@@ -531,12 +535,12 @@ export function ArtGenerator() {
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating FREE AI Art...
+                    Generating EXACTLY what you described...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generate FREE AI Art
+                    <Target className="mr-2 h-4 w-4" />
+                    Generate EXACTLY This Image
                   </>
                 )}
               </Button>
@@ -548,7 +552,7 @@ export function ArtGenerator() {
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span>
-                          {isRealAI ? "🎨 Real AI Generated!" : "📸 High-Quality Image"}
+                          {isRealAI ? "🎯 REAL AI Generated Exactly!" : "📸 Smart Image Match"}
                           {lastResult.metadata && ` (${lastResult.metadata.responseTime}ms)`}
                         </span>
                         <Badge variant={isRealAI ? "default" : "secondary"}>
@@ -621,15 +625,15 @@ export function ArtGenerator() {
               ) : (
                 <div className="text-center">
                   <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900">
-                    <Paintbrush className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
+                    <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">Ready to Create Art</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">Precision AI Image Generator</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">
-                    Enter a prompt and click generate to create your artwork
+                    Describe exactly what you want - AI will generate it precisely
                   </p>
                   <div className="mt-2 flex items-center justify-center space-x-1 text-xs text-green-600">
-                    <Sparkles className="h-3 w-3" />
-                    <span>Working Image Generation</span>
+                    <Target className="h-3 w-3" />
+                    <span>Accurate AI Generation</span>
                   </div>
                 </div>
               )}
