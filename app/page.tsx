@@ -9,21 +9,21 @@ import { ChevronRight, Paintbrush, Music, FileText, Sparkles, Brain, Layers, Zap
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Hero Section with Animated Background */}
+      {/* Hero Section with Clean Animated Background */}
       <section className="relative overflow-hidden ai-bg-animated">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:20px_20px]" />
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
+        {/* Removed the dark overlay completely */}
         <div className="container relative mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:flex lg:items-center lg:px-8">
           <div className="max-w-3xl">
             <div className="float-animation">
-              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl drop-shadow-lg">
                 <span className="block neon-text">AI-Powered</span>
-                <span className="block bg-gradient-to-r from-yellow-200 via-green-200 to-blue-200 bg-clip-text text-transparent sparkle relative">
+                <span className="block bg-gradient-to-r from-yellow-200 via-green-200 to-blue-200 bg-clip-text text-transparent sparkle relative drop-shadow-lg">
                   Art Generation
                 </span>
               </h1>
             </div>
-            <p className="mt-4 max-w-xl text-lg text-white/90 sm:mt-6 sm:text-xl">
+            <p className="mt-4 max-w-xl text-lg text-white/95 sm:mt-6 sm:text-xl drop-shadow-md">
               Explore the intersection of creativity and artificial intelligence. Create stunning artwork, music, and
               writing with the power of AI.
             </p>
@@ -31,7 +31,7 @@ export default function Home() {
               <Link href="#generator" passHref>
                 <Button
                   size="lg"
-                  className="w-full glow-button ai-gradient-purple ripple sm:w-auto text-white border-0"
+                  className="w-full glow-button ai-gradient-purple ripple sm:w-auto text-white border-0 shadow-2xl"
                 >
                   <Zap className="mr-2 h-4 w-4" />
                   Start Creating
@@ -40,7 +40,7 @@ export default function Home() {
               </Link>
               <Link
                 href="#learn-more"
-                className="text-base font-semibold text-white hover:text-white/80 transition-colors duration-300"
+                className="text-base font-semibold text-white hover:text-white/80 transition-colors duration-300 drop-shadow-md"
               >
                 Learn more{" "}
                 <span aria-hidden="true" className="inline-block transition-transform duration-300 hover:translate-x-1">
@@ -155,56 +155,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Principles Section */}
-      <section className="ai-bg-animated py-16 text-white sm:py-24">
-        <div className="absolute inset-0 bg-black/30" />
+      {/* Principles Section - Clean Background */}
+      <section
+        className="relative overflow-hidden py-16 text-white sm:py-24"
+        style={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)",
+          backgroundSize: "400% 400%",
+          animation: "gradientShift 15s ease infinite",
+        }}
+      >
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]" />
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight neon-text sm:text-3xl lg:text-4xl">
+            <h2 className="text-2xl font-bold tracking-tight neon-text sm:text-3xl lg:text-4xl drop-shadow-lg">
               Understanding AI Art
             </h2>
-            <p className="mt-3 text-base text-white/80 sm:mt-4 sm:text-lg">
+            <p className="mt-3 text-base text-white/90 sm:mt-4 sm:text-lg drop-shadow-md">
               The principles behind AI-generated creative content
             </p>
           </div>
 
           <div className="mt-12 grid gap-6 sm:mt-16 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Neural Networks</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Neural Networks</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 AI art is created using complex neural networks that learn patterns from existing artwork and generate
                 new content.
               </p>
             </div>
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Training Data</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Training Data</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 The quality and diversity of training data significantly impacts the AI's ability to create original and
                 meaningful art.
               </p>
             </div>
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Human Collaboration</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Human Collaboration</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 The most compelling AI art often emerges from collaboration between human creativity and machine
                 intelligence.
               </p>
             </div>
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Ethical Considerations</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Ethical Considerations</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 AI art raises important questions about authorship, originality, and the value of human creativity.
               </p>
             </div>
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Technical Limitations</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Technical Limitations</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 Understanding the capabilities and constraints of AI models helps artists leverage them effectively.
               </p>
             </div>
-            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card">
-              <h3 className="text-lg font-bold sm:text-xl">Future Directions</h3>
-              <p className="mt-2 text-sm text-white/80 sm:text-base">
+            <div className="glow-card rounded-lg p-4 backdrop-blur-sm sm:p-6 interactive-card bg-white/10">
+              <h3 className="text-lg font-bold sm:text-xl drop-shadow-md">Future Directions</h3>
+              <p className="mt-2 text-sm text-white/85 sm:text-base drop-shadow-sm">
                 AI art continues to evolve rapidly, opening new possibilities for creative expression and artistic
                 innovation.
               </p>

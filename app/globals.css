@@ -150,7 +150,7 @@
     box-shadow: 0 15px 40px 0 rgba(31, 38, 135, 0.5);
   }
 
-  /* Animated Background */
+  /* Clean Animated Background - No Dark Overlay */
   .ai-bg-animated {
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
     background-size: 400% 400%;
@@ -224,7 +224,7 @@
   /* Neon Text Effect */
   .neon-text {
     color: #fff;
-    text-shadow: 0 0 5px #667eea, 0 0 10px #667eea, 0 0 15px #667eea, 0 0 20px #667eea;
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #667eea, 0 0 20px #667eea;
   }
 
   /* Glowing Border */
