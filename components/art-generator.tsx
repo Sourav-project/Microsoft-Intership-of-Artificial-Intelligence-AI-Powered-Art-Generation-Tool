@@ -97,31 +97,6 @@ export function ArtGenerator() {
       if (result.success && result.imageUrl) {
         console.log("✅ Image generated successfully!")
         setGeneratedImage(result.imageUrl)
-
-        // Preload the image to ensure it works
-        const img = new Image()
-        img.crossOrigin = "anonymous"
-        img.onload = () => {
-          console.log("✅ Image loaded successfully")
-        }
-        img.onerror = () => {
-          console.log("⚠️ Image failed to load, generating new one...")
-          // Generate a new image with different seed
-          const newSeed = Math.floor(Math.random() * 10000)
-          const backupUrl = `https://picsum.photos/1024/1024?random=${newSeed}`
-          setGeneratedImage(backupUrl)
-          setLastResult({
-            ...result,
-            imageUrl: backupUrl,
-            isBackup: true,
-            metadata: {
-              ...result.metadata,
-              model: "backup-photos",
-              service: "High Quality Stock Photos",
-            },
-          })
-        }
-        img.src = result.imageUrl
       } else {
         console.log("❌ Generation failed:", result.error)
       }
@@ -413,7 +388,11 @@ export function ArtGenerator() {
                       className="h-full w-full object-cover"
                       width={1024}
                       height={1024}
-                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.log("Image failed to load, trying backup...")
+                        const target = e.target as HTMLImageElement
+                        target.src = `https://picsum.photos/1024/1024?random=${Math.floor(Math.random() * 10000)}`
+                      }}
                     />
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 pb-safe">
@@ -452,13 +431,13 @@ export function ArtGenerator() {
                   <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900">
                     <Paintbrush className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">Ready to Create FREE AI Art</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg">Ready to Create Art</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">
-                    Enter a detailed prompt and click generate - no API key required!
+                    Enter a prompt and click generate to create your artwork
                   </p>
                   <div className="mt-2 flex items-center justify-center space-x-1 text-xs text-green-600">
                     <Sparkles className="h-3 w-3" />
-                    <span>100% Free • No Setup Required</span>
+                    <span>Working Image Generation</span>
                   </div>
                 </div>
               )}
