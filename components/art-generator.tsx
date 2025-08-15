@@ -20,13 +20,22 @@ import {
   Copy,
   AlertCircle,
   Info,
+  CheckCircle,
 } from "lucide-react"
-import {
-  generateAIImage,
-  generatePlaceholderImage,
-  type ImageGenerationOptions,
-  type ImageGenerationResult,
-} from "@/lib/ai-image-generation"
+
+interface GenerationResult {
+  success: boolean
+  imageUrl?: string
+  error?: string
+  fallback?: boolean
+  revisedPrompt?: string
+  metadata?: {
+    model: string
+    responseTime: number
+    size: string
+    quality: string
+  }
+}
 
 export function ArtGenerator() {
   const [imagePrompt, setImagePrompt] = useState("")
@@ -39,8 +48,7 @@ export function ArtGenerator() {
   const [generatedMusic, setGeneratedMusic] = useState<string | null>(null)
   const [generatedText, setGeneratedText] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("image")
-  const [error, setError] = useState<string | null>(null)
-  const [lastResult, setLastResult] = useState<ImageGenerationResult | null>(null)
+  const [lastResult, setLastResult] = useState<GenerationResult | null>(null)
 
   const generateRandomPlaceholder = (seed: string, type: "music" | "text") => {
     const hash = Array.from(seed).reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000
@@ -61,13 +69,13 @@ export function ArtGenerator() {
   const handleImageGeneration = async () => {
     if (!imagePrompt.trim()) return
 
+    console.log("🎨 Starting image generation...")
     setIsGenerating(true)
-    setError(null)
     setGeneratedImage(null)
     setLastResult(null)
 
     try {
-      // Determine image size based on complexity
+      // Determine settings based on complexity
       let size: "1024x1024" | "1792x1024" | "1024x1792" = "1024x1024"
       if (complexity[0] > 70) {
         size = "1792x1024" // Landscape for high complexity
@@ -75,35 +83,58 @@ export function ArtGenerator() {
         size = "1024x1792" // Portrait for low complexity
       }
 
-      const options: ImageGenerationOptions = {
-        prompt: imagePrompt.trim(),
-        style: style,
-        size: size,
-        quality: complexity[0] > 50 ? "hd" : "standard",
-      }
+      const quality = complexity[0] > 50 ? "hd" : "standard"
 
-      console.log("Starting image generation with options:", options)
+      console.log("Generation settings:", { prompt: imagePrompt, style, size, quality })
 
-      // Try real AI generation first
-      let result = await generateAIImage(options)
+      // Call our API route
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: imagePrompt.trim(),
+          style,
+          size,
+          quality,
+        }),
+      })
 
-      // If real AI fails, use fallback
-      if (!result.success) {
-        console.warn("AI generation failed, using fallback:", result.error)
-        result = await generatePlaceholderImage(imagePrompt, style)
-      }
+      const result: GenerationResult = await response.json()
+      console.log("API Result:", result)
 
       setLastResult(result)
 
       if (result.success && result.imageUrl) {
+        console.log("✅ Real AI image generated successfully!")
         setGeneratedImage(result.imageUrl)
-        console.log("Image generation successful:", result.metadata)
+      } else if (result.fallback) {
+        console.log("⚠️ Falling back to placeholder")
+        // Generate placeholder as fallback
+        const hash = Array.from(imagePrompt + style).reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000
+        const placeholderUrl = `/placeholder.svg?height=1024&width=1024&text=AI+Art+${hash}`
+        setGeneratedImage(placeholderUrl)
+        setLastResult({
+          ...result,
+          imageUrl: placeholderUrl,
+          metadata: {
+            model: "placeholder",
+            responseTime: 2000,
+            size: "1024x1024",
+            quality: "standard",
+          },
+        })
       } else {
-        setError(result.error || "Failed to generate image")
+        console.log("❌ Generation failed:", result.error)
       }
-    } catch (err) {
-      console.error("Generation error:", err)
-      setError("An unexpected error occurred during image generation")
+    } catch (error) {
+      console.error("❌ Client error:", error)
+      setLastResult({
+        success: false,
+        error: "Network error occurred",
+        fallback: true,
+      })
     } finally {
       setIsGenerating(false)
     }
@@ -232,6 +263,9 @@ export function ArtGenerator() {
     return `${quality} Quality • ${size} Format`
   }
 
+  const isRealAI = lastResult?.success && !lastResult?.fallback
+  const isPlaceholder = lastResult?.fallback || lastResult?.metadata?.model === "placeholder"
+
   return (
     <div className="mx-auto max-w-4xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
       <Tabs defaultValue="image" onValueChange={setActiveTab} className="w-full">
@@ -314,27 +348,50 @@ export function ArtGenerator() {
                 )}
               </Button>
 
-              {error && (
+              {lastResult && !lastResult.success && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>
+                    <div className="space-y-2">
+                      <p>
+                        <strong>Error:</strong> {lastResult.error}
+                      </p>
+                      {lastResult.fallback && (
+                        <p className="text-sm">
+                          <strong>Solution:</strong> Add your OpenAI API key to environment variables:
+                          <br />
+                          <code className="bg-muted px-1 rounded text-xs">OPENAI_API_KEY=sk-your-key-here</code>
+                        </p>
+                      )}
+                    </div>
+                  </AlertDescription>
                 </Alert>
               )}
 
-              {lastResult && lastResult.success && lastResult.metadata && (
-                <Alert>
-                  <Info className="h-4 w-4" />
+              {lastResult && lastResult.success && (
+                <Alert variant={isRealAI ? "default" : "destructive"}>
+                  {isRealAI ? <CheckCircle className="h-4 w-4" /> : <Info className="h-4 w-4" />}
                   <AlertDescription>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span>Generated in {lastResult.metadata.generationTime}ms</span>
-                        <Badge variant="outline">{lastResult.metadata.model}</Badge>
+                        <span>
+                          {isRealAI ? "✅ Real AI Generated!" : "⚠️ Placeholder Image"}
+                          {lastResult.metadata && ` (${lastResult.metadata.responseTime}ms)`}
+                        </span>
+                        <Badge variant={isRealAI ? "default" : "secondary"}>
+                          {lastResult.metadata?.model || "unknown"}
+                        </Badge>
                       </div>
-                      {lastResult.metadata.revisedPrompt && (
+                      {lastResult.revisedPrompt && (
                         <details className="text-xs">
                           <summary className="cursor-pointer hover:text-foreground">AI Enhanced Prompt</summary>
-                          <p className="mt-1 text-muted-foreground">{lastResult.metadata.revisedPrompt}</p>
+                          <p className="mt-1 text-muted-foreground">{lastResult.revisedPrompt}</p>
                         </details>
+                      )}
+                      {isPlaceholder && (
+                        <p className="text-xs text-muted-foreground">
+                          Configure OpenAI API key to generate real AI images
+                        </p>
                       )}
                     </div>
                   </AlertDescription>

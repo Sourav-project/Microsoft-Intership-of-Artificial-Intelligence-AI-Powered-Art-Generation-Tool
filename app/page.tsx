@@ -2,9 +2,9 @@ import Link from "next/link"
 import { ArtGenerator } from "@/components/art-generator"
 import { ArtGallery } from "@/components/art-gallery"
 import { FeatureCard } from "@/components/feature-card"
+import { DebugPanel } from "@/components/debug-panel"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, Paintbrush, Music, FileText, Sparkles, Brain, Layers } from "lucide-react"
-import { ApiStatus } from "@/components/api-status"
 
 export default function Home() {
   return (
@@ -100,7 +100,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 sm:mt-16">
-            <ApiStatus />
+            <DebugPanel />
             <ArtGenerator />
           </div>
         </div>
