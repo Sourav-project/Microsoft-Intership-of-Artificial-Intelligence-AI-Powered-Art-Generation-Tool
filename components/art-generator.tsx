@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MusicVisualizer } from "./music-visualizer"
+import { AudioGenerator } from "./audio-generator"
 import {
   Loader2,
   RefreshCw,
@@ -218,31 +219,6 @@ export function ArtGenerator() {
     return randomText
   }
 
-  const generateMusicWithLanguage = (
-    prompt: string,
-    language: string,
-    genre: string,
-    duration: number,
-    type: string,
-  ) => {
-    const languageNames = MUSIC_LANGUAGES.find((lang) => lang.code === language)?.name || "English"
-
-    // Simulate different music based on language and genre
-    const musicSamples = [
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
-      "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
-    ]
-
-    const hash = Array.from(prompt + language + genre).reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    return musicSamples[hash % musicSamples.length]
-  }
-
   const generateMusicAnalysis = (language: string, genre: string, duration: number): MusicAnalysis => {
     const keys = [
       "C Major",
@@ -358,17 +334,6 @@ export function ArtGenerator() {
   const handleGenerate = () => {
     if (activeTab === "image") {
       handleImageGeneration()
-    } else if (activeTab === "music") {
-      if (!musicPrompt) return
-      setIsGenerating(true)
-      setGeneratedMusic(null)
-      setTimeout(() => {
-        const newMusic = generateMusicWithLanguage(musicPrompt, musicLanguage, musicGenre, musicDuration[0], musicType)
-        const newAnalysis = generateMusicAnalysis(musicLanguage, musicGenre, musicDuration[0])
-        setGeneratedMusic(newMusic)
-        setMusicAnalysis(newAnalysis)
-        setIsGenerating(false)
-      }, 2000)
     } else if (activeTab === "text") {
       if (!textPrompt) return
       setIsGenerating(true)
@@ -382,7 +347,11 @@ export function ArtGenerator() {
   }
 
   const handleRegenerate = () => {
-    handleGenerate()
+    if (activeTab === "image") {
+      handleImageGeneration()
+    } else if (activeTab === "text") {
+      handleGenerate()
+    }
   }
 
   const handleDownload = async (type: "image" | "music" | "text") => {
@@ -402,13 +371,6 @@ export function ArtGenerator() {
         console.error("Download failed:", error)
         window.open(generatedImage, "_blank")
       }
-    } else if (type === "music" && generatedMusic) {
-      const link = document.createElement("a")
-      link.href = generatedMusic
-      link.download = `ai-music-${musicLanguage}-${Date.now()}.mp3`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
     } else if (type === "text" && generatedText) {
       const blob = new Blob([generatedText], { type: "text/plain" })
       const url = URL.createObjectURL(blob)
@@ -482,7 +444,12 @@ export function ArtGenerator() {
   }
 
   const isRealAI = lastResult?.success && !lastResult?.isBackup && lastResult?.metadata?.model?.includes("pollinations")
-  const isBackup = lastResult?.isBackup
+
+  const handleAudioGenerated = (audioUrl: string) => {
+    setGeneratedMusic(audioUrl)
+    const newAnalysis = generateMusicAnalysis(musicLanguage, musicGenre, musicDuration[0])
+    setMusicAnalysis(newAnalysis)
+  }
 
   return (
     <div className="mx-auto max-w-6xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
@@ -793,74 +760,10 @@ export function ArtGenerator() {
                     </div>
                   </CardContent>
                 </Card>
-
-                <Button
-                  onClick={handleGenerate}
-                  disabled={!musicPrompt || isGenerating}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name} Music...
-                    </>
-                  ) : (
-                    <>
-                      <Music className="mr-2 h-4 w-4" />
-                      Generate {MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag} {musicGenre} Music
-                    </>
-                  )}
-                </Button>
               </div>
 
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
-                {generatedMusic ? (
-                  <div className="w-full space-y-4 text-center">
-                    <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                      <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-base font-medium sm:text-lg">Generated Music</h3>
-                      <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-                        <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.flag}</span>
-                        <span>{MUSIC_LANGUAGES.find((l) => l.code === musicLanguage)?.name}</span>
-                        <span>•</span>
-                        <span>{musicGenre}</span>
-                        <span>•</span>
-                        <span>{musicDuration[0]}s</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRegenerate}
-                        className="flex-1 min-w-0 sm:flex-none bg-transparent"
-                      >
-                        <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                        <span className="text-xs sm:text-sm">Regenerate</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDownload("music")}
-                        className="flex-1 min-w-0 sm:flex-none"
-                      >
-                        <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                        <span className="text-xs sm:text-sm">Download</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleShare("music")}
-                        className="flex-1 min-w-0 sm:flex-none"
-                      >
-                        <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                        <span className="text-xs sm:text-sm">Share</span>
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
+                {!musicPrompt.trim() ? (
                   <div className="text-center">
                     <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
                       <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
@@ -879,6 +782,17 @@ export function ArtGenerator() {
                         +{MUSIC_LANGUAGES.length - 8} more
                       </Badge>
                     </div>
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <AudioGenerator
+                      prompt={musicPrompt}
+                      language={musicLanguage}
+                      genre={musicGenre}
+                      duration={musicDuration[0]}
+                      type={musicType}
+                      onAudioGenerated={handleAudioGenerated}
+                    />
                   </div>
                 )}
               </div>
