@@ -20,12 +20,24 @@ export function FeatureCard({ icon, title, description, color }: FeatureCardProp
     return gradients[color as keyof typeof gradients] || gradients.purple
   }
 
+  const getGlowClass = (color: string) => {
+    const glows = {
+      purple: "hover:shadow-purple-500/25",
+      blue: "hover:shadow-blue-500/25",
+      pink: "hover:shadow-pink-500/25",
+      amber: "hover:shadow-amber-500/25",
+      green: "hover:shadow-green-500/25",
+      red: "hover:shadow-red-500/25",
+    }
+    return glows[color as keyof typeof glows] || glows.purple
+  }
+
   return (
     <div
-      className={`rounded-xl bg-gradient-to-br ${getGradientClass(color)} p-6 shadow-sm transition-all hover:shadow-md sm:p-8`}
+      className={`glow-card rounded-xl bg-gradient-to-br ${getGradientClass(color)} p-6 shadow-sm transition-all duration-300 hover:shadow-2xl ${getGlowClass(color)} sm:p-8 pulse-glow`}
     >
-      <div className="mb-3 sm:mb-4">{icon}</div>
-      <h3 className="mb-2 text-lg font-bold sm:text-xl">{title}</h3>
+      <div className="mb-3 sm:mb-4 float-animation">{icon}</div>
+      <h3 className="mb-2 text-lg font-bold gradient-text sm:text-xl">{title}</h3>
       <p className="text-sm text-muted-foreground sm:text-base">{description}</p>
     </div>
   )

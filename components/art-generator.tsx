@@ -30,6 +30,7 @@ import {
   Wand2,
   Zap,
   Target,
+  Sparkles,
 } from "lucide-react"
 
 interface GenerationResult {
@@ -455,18 +456,27 @@ export function ArtGenerator() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl rounded-xl bg-white p-4 shadow-lg dark:bg-slate-800 sm:p-6">
+    <div className="mx-auto max-w-6xl rounded-xl glow-card p-4 shadow-lg sm:p-6">
       <Tabs defaultValue="image" onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="image" className="text-xs sm:text-sm">
+        <TabsList className="grid w-full grid-cols-3 glow-border">
+          <TabsTrigger
+            value="image"
+            className="text-xs sm:text-sm transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900"
+          >
             <Paintbrush className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
             Image
           </TabsTrigger>
-          <TabsTrigger value="music" className="text-xs sm:text-sm">
+          <TabsTrigger
+            value="music"
+            className="text-xs sm:text-sm transition-all duration-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+          >
             <Music className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
             Music
           </TabsTrigger>
-          <TabsTrigger value="text" className="text-xs sm:text-sm">
+          <TabsTrigger
+            value="text"
+            className="text-xs sm:text-sm transition-all duration-300 hover:bg-pink-100 dark:hover:bg-pink-900"
+          >
             <FileText className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
             Text
           </TabsTrigger>
@@ -476,7 +486,7 @@ export function ArtGenerator() {
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
             <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="image-prompt" className="text-sm font-medium flex items-center">
+                <Label htmlFor="image-prompt" className="text-sm font-medium flex items-center gradient-text">
                   <Target className="mr-1 h-3 w-3" />
                   Describe EXACTLY what you want to see
                 </Label>
@@ -485,24 +495,31 @@ export function ArtGenerator() {
                   placeholder="A red cat sitting on a blue chair in a sunny garden..."
                   value={imagePrompt}
                   onChange={(e) => setImagePrompt(e.target.value)}
-                  className="text-sm"
+                  className="text-sm glow-border transition-all duration-300 focus:shadow-lg focus:shadow-purple-500/25"
                   maxLength={1000}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>🎯 AI will generate EXACTLY what you describe!</span>
+                  <span className="flex items-center">
+                    <Target className="mr-1 h-3 w-3 text-green-500" />
+                    AI will generate EXACTLY what you describe!
+                  </span>
                   <span>{imagePrompt.length}/1000</span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Art Style</Label>
+                <Label className="text-sm font-medium gradient-text">Art Style</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {["realistic", "abstract", "digital", "painterly"].map((styleOption) => (
                     <Button
                       key={styleOption}
                       variant={style === styleOption ? "default" : "outline"}
                       onClick={() => setStyle(styleOption)}
-                      className="h-9 text-xs capitalize sm:h-10 sm:text-sm"
+                      className={`h-9 text-xs capitalize sm:h-10 sm:text-sm transition-all duration-300 ${
+                        style === styleOption
+                          ? "ai-gradient-purple text-white border-0 shadow-lg shadow-purple-500/25"
+                          : "glow-border hover:shadow-lg hover:shadow-purple-500/10"
+                      } ripple`}
                     >
                       {styleOption}
                     </Button>
@@ -512,15 +529,23 @@ export function ArtGenerator() {
 
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label htmlFor="complexity" className="text-sm font-medium">
+                  <Label htmlFor="complexity" className="text-sm font-medium gradient-text">
                     Quality & Detail
                   </Label>
                   <span className="text-xs text-muted-foreground sm:text-sm">{complexity[0]}%</span>
                 </div>
-                <Slider id="complexity" min={0} max={100} step={1} value={complexity} onValueChange={setComplexity} />
+                <Slider
+                  id="complexity"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={complexity}
+                  onValueChange={setComplexity}
+                  className="transition-all duration-300 hover:scale-105"
+                />
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>{getQualityInfo()}</span>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs pulse-glow">
                     <Zap className="mr-1 h-3 w-3" />
                     Real AI
                   </Badge>
@@ -530,7 +555,7 @@ export function ArtGenerator() {
               <Button
                 onClick={handleGenerate}
                 disabled={!imagePrompt.trim() || isGenerating}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="w-full glow-button ai-gradient-purple text-white border-0 ripple"
               >
                 {isGenerating ? (
                   <>
@@ -541,27 +566,30 @@ export function ArtGenerator() {
                   <>
                     <Target className="mr-2 h-4 w-4" />
                     Generate EXACTLY This Image
+                    <Sparkles className="ml-2 h-4 w-4" />
                   </>
                 )}
               </Button>
 
               {lastResult && lastResult.success && (
-                <Alert>
-                  <CheckCircle className="h-4 w-4" />
+                <Alert className="glow-card border-green-200 dark:border-green-800">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
                   <AlertDescription>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span>
+                        <span className="gradient-text font-medium">
                           {isRealAI ? "🎯 REAL AI Generated Exactly!" : "📸 Smart Image Match"}
                           {lastResult.metadata && ` (${lastResult.metadata.responseTime}ms)`}
                         </span>
-                        <Badge variant={isRealAI ? "default" : "secondary"}>
+                        <Badge variant={isRealAI ? "default" : "secondary"} className="pulse-glow">
                           {lastResult.metadata?.service || lastResult.metadata?.model || "AI"}
                         </Badge>
                       </div>
                       {lastResult.metadata?.enhancedPrompt && (
                         <details className="text-xs">
-                          <summary className="cursor-pointer hover:text-foreground">Enhanced Prompt</summary>
+                          <summary className="cursor-pointer hover:text-foreground transition-colors">
+                            Enhanced Prompt
+                          </summary>
                           <p className="mt-1 text-muted-foreground">{lastResult.metadata.enhancedPrompt}</p>
                         </details>
                       )}
@@ -574,14 +602,14 @@ export function ArtGenerator() {
               )}
             </div>
 
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
+            <div className="flex flex-col items-center justify-center rounded-lg glow-card border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
               {generatedImage ? (
                 <div className="w-full space-y-4">
-                  <div className="relative aspect-square w-full overflow-hidden rounded-lg">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg glow-card">
                     <img
                       src={generatedImage || "/placeholder.svg"}
                       alt="AI Generated artwork"
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                       width={1024}
                       height={1024}
                       onError={(e) => {
@@ -596,7 +624,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={handleRegenerate}
-                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple bg-transparent"
                       disabled={isGenerating}
                     >
                       <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
@@ -606,7 +634,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDownload("image")}
-                      className="flex-1 min-w-0 sm:flex-none"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple"
                     >
                       <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Download</span>
@@ -615,7 +643,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleShare("image")}
-                      className="flex-1 min-w-0 sm:flex-none"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple"
                     >
                       <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Share</span>
@@ -624,10 +652,10 @@ export function ArtGenerator() {
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900">
+                  <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900 float-animation pulse-glow">
                     <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">Precision AI Image Generator</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg gradient-text">Precision AI Image Generator</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">
                     Describe exactly what you want - AI will generate it precisely
                   </p>
@@ -645,9 +673,9 @@ export function ArtGenerator() {
           <div className="space-y-6">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
               <div className="space-y-4 sm:space-y-6">
-                <Card>
+                <Card className="glow-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center text-base">
+                    <CardTitle className="flex items-center text-base gradient-text">
                       <Globe className="mr-2 h-4 w-4" />
                       Multi-Language Music Generation
                     </CardTitle>
@@ -657,7 +685,7 @@ export function ArtGenerator() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="music-prompt" className="text-sm font-medium">
+                      <Label htmlFor="music-prompt" className="text-sm font-medium gradient-text">
                         Describe your music
                       </Label>
                       <Textarea
@@ -665,19 +693,19 @@ export function ArtGenerator() {
                         placeholder="A soulful melody about love and longing, with traditional instruments..."
                         value={musicPrompt}
                         onChange={(e) => setMusicPrompt(e.target.value)}
-                        className="text-sm min-h-[80px]"
+                        className="text-sm min-h-[80px] glow-border transition-all duration-300 focus:shadow-lg focus:shadow-blue-500/25"
                         rows={3}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium flex items-center">
+                        <Label className="text-sm font-medium flex items-center gradient-text">
                           <Globe className="mr-1 h-3 w-3" />
                           Language
                         </Label>
                         <Select value={musicLanguage} onValueChange={setMusicLanguage}>
-                          <SelectTrigger className="text-xs">
+                          <SelectTrigger className="text-xs glow-border">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="max-h-60">
@@ -694,12 +722,12 @@ export function ArtGenerator() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium flex items-center">
+                        <Label className="text-sm font-medium flex items-center gradient-text">
                           <Music className="mr-1 h-3 w-3" />
                           Genre
                         </Label>
                         <Select value={musicGenre} onValueChange={setMusicGenre}>
-                          <SelectTrigger className="text-xs">
+                          <SelectTrigger className="text-xs glow-border">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="max-h-60">
@@ -715,12 +743,12 @@ export function ArtGenerator() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium flex items-center">
+                        <Label className="text-sm font-medium flex items-center gradient-text">
                           <Mic className="mr-1 h-3 w-3" />
                           Type
                         </Label>
                         <Select value={musicType} onValueChange={setMusicType}>
-                          <SelectTrigger className="text-xs">
+                          <SelectTrigger className="text-xs glow-border">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -742,7 +770,7 @@ export function ArtGenerator() {
 
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <Label className="text-sm font-medium flex items-center">
+                          <Label className="text-sm font-medium flex items-center gradient-text">
                             <Volume2 className="mr-1 h-3 w-3" />
                             Duration
                           </Label>
@@ -754,7 +782,7 @@ export function ArtGenerator() {
                           step={15}
                           value={musicDuration}
                           onValueChange={setMusicDuration}
-                          className="w-full"
+                          className="w-full transition-all duration-300 hover:scale-105"
                         />
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span>15s</span>
@@ -766,19 +794,21 @@ export function ArtGenerator() {
                 </Card>
               </div>
 
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
+              <div className="flex flex-col items-center justify-center rounded-lg glow-card border-dashed p-4 min-h-[300px] sm:min-h-[400px]">
                 {!musicPrompt.trim() ? (
                   <div className="text-center">
-                    <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                    <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900 float-animation pulse-glow">
                       <Music className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
                     </div>
-                    <h3 className="mb-1 text-base font-medium sm:text-lg">Multi-Language Music Generator</h3>
+                    <h3 className="mb-1 text-base font-medium sm:text-lg gradient-text">
+                      Multi-Language Music Generator
+                    </h3>
                     <p className="text-xs text-muted-foreground sm:text-sm mb-3">
                       Create music in any language with cultural authenticity
                     </p>
                     <div className="flex flex-wrap justify-center gap-1 text-xs">
                       {MUSIC_LANGUAGES.slice(0, 8).map((lang) => (
-                        <Badge key={lang.code} variant="secondary" className="text-xs">
+                        <Badge key={lang.code} variant="secondary" className="text-xs pulse-glow">
                           {lang.flag} {lang.name}
                         </Badge>
                       ))}
@@ -804,7 +834,15 @@ export function ArtGenerator() {
 
             {/* Music Visualizer and Analysis */}
             {generatedMusic && (
-              <MusicVisualizer audioUrl={generatedMusic} analysis={musicAnalysis} onAnalysisUpdate={setMusicAnalysis} />
+              <div className="glow-card rounded-xl p-1">
+                <div className="bg-white dark:bg-slate-800 rounded-lg">
+                  <MusicVisualizer
+                    audioUrl={generatedMusic}
+                    analysis={musicAnalysis}
+                    onAnalysisUpdate={setMusicAnalysis}
+                  />
+                </div>
+              </div>
             )}
           </div>
         </TabsContent>
@@ -812,9 +850,9 @@ export function ArtGenerator() {
         <TabsContent value="text" className="mt-4 sm:mt-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
             <div className="space-y-4 sm:space-y-6">
-              <Card>
+              <Card className="glow-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center text-base">
+                  <CardTitle className="flex items-center text-base gradient-text">
                     <Wand2 className="mr-2 h-4 w-4" />
                     Advanced Text Generation
                   </CardTitle>
@@ -824,7 +862,7 @@ export function ArtGenerator() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="text-prompt" className="text-sm font-medium">
+                    <Label htmlFor="text-prompt" className="text-sm font-medium gradient-text">
                       Describe your creative writing
                     </Label>
                     <Textarea
@@ -833,18 +871,18 @@ export function ArtGenerator() {
                       value={textPrompt}
                       onChange={(e) => setTextPrompt(e.target.value)}
                       rows={4}
-                      className="text-sm min-h-[100px] resize-none"
+                      className="text-sm min-h-[100px] resize-none glow-border transition-all duration-300 focus:shadow-lg focus:shadow-pink-500/25"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
+                      <Label className="text-sm font-medium flex items-center gradient-text">
                         <Globe className="mr-1 h-3 w-3" />
                         Language
                       </Label>
                       <Select value={textLanguage} onValueChange={setTextLanguage}>
-                        <SelectTrigger className="text-xs">
+                        <SelectTrigger className="text-xs glow-border">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
@@ -861,12 +899,12 @@ export function ArtGenerator() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center">
+                      <Label className="text-sm font-medium flex items-center gradient-text">
                         <BookOpen className="mr-1 h-3 w-3" />
                         Content Type
                       </Label>
                       <Select value={textType} onValueChange={setTextType}>
-                        <SelectTrigger className="text-xs">
+                        <SelectTrigger className="text-xs glow-border">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -885,9 +923,9 @@ export function ArtGenerator() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Writing Tone</Label>
+                      <Label className="text-sm font-medium gradient-text">Writing Tone</Label>
                       <Select value={textTone} onValueChange={setTextTone}>
-                        <SelectTrigger className="text-xs">
+                        <SelectTrigger className="text-xs glow-border">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -915,7 +953,7 @@ export function ArtGenerator() {
 
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <Label className="text-sm font-medium">Length</Label>
+                        <Label className="text-sm font-medium gradient-text">Length</Label>
                         <span className="text-xs text-muted-foreground">{textLength[0]} words</span>
                       </div>
                       <Slider
@@ -924,7 +962,7 @@ export function ArtGenerator() {
                         step={50}
                         value={textLength}
                         onValueChange={setTextLength}
-                        className="w-full"
+                        className="w-full transition-all duration-300 hover:scale-105"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>Short</span>
@@ -938,7 +976,7 @@ export function ArtGenerator() {
               <Button
                 onClick={handleGenerate}
                 disabled={!textPrompt || isGenerating}
-                className="w-full bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700"
+                className="w-full glow-button ai-gradient-pink text-white border-0 ripple"
               >
                 {isGenerating ? (
                   <>
@@ -950,21 +988,22 @@ export function ArtGenerator() {
                     <Wand2 className="mr-2 h-4 w-4" />
                     Generate {TEXT_LANGUAGES.find((l) => l.code === textLanguage)?.flag}{" "}
                     {TEXT_TYPES.find((t) => t.value === textType)?.label}
+                    <Sparkles className="ml-2 h-4 w-4" />
                   </>
                 )}
               </Button>
             </div>
 
-            <div className="flex flex-col rounded-lg border border-dashed min-h-[400px] sm:min-h-[500px]">
+            <div className="flex flex-col rounded-lg glow-card border-dashed min-h-[400px] sm:min-h-[500px]">
               {generatedText ? (
                 <div className="flex flex-col h-full p-4">
                   <div className="flex items-center justify-center mb-4">
-                    <div className="rounded-full bg-pink-100 p-3 dark:bg-pink-900">
+                    <div className="rounded-full bg-pink-100 p-3 dark:bg-pink-900 float-animation pulse-glow">
                       <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400 sm:h-6 sm:w-6" />
                     </div>
                   </div>
                   <div className="text-center mb-4">
-                    <h3 className="text-base font-medium sm:text-lg">Generated Text</h3>
+                    <h3 className="text-base font-medium sm:text-lg gradient-text">Generated Text</h3>
                     <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground mt-1">
                       <span>{TEXT_LANGUAGES.find((l) => l.code === textLanguage)?.flag}</span>
                       <span>{TEXT_LANGUAGES.find((l) => l.code === textLanguage)?.name}</span>
@@ -974,7 +1013,7 @@ export function ArtGenerator() {
                       <span>{textLength[0]} words</span>
                     </div>
                   </div>
-                  <div className="flex-1 overflow-y-auto rounded-md border p-4 text-sm leading-relaxed mb-4 bg-muted/30">
+                  <div className="flex-1 overflow-y-auto rounded-md border p-4 text-sm leading-relaxed mb-4 bg-muted/30 glow-card">
                     <p className="whitespace-pre-wrap">{generatedText}</p>
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 mt-auto">
@@ -982,7 +1021,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={handleRegenerate}
-                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple bg-transparent"
                     >
                       <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Regenerate</span>
@@ -991,7 +1030,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={handleCopyText}
-                      className="flex-1 min-w-0 sm:flex-none bg-transparent"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple bg-transparent"
                     >
                       <Copy className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Copy</span>
@@ -1000,7 +1039,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDownload("text")}
-                      className="flex-1 min-w-0 sm:flex-none"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple"
                     >
                       <Download className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Download</span>
@@ -1009,7 +1048,7 @@ export function ArtGenerator() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleShare("text")}
-                      className="flex-1 min-w-0 sm:flex-none"
+                      className="flex-1 min-w-0 sm:flex-none glow-border ripple"
                     >
                       <Share2 className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                       <span className="text-xs sm:text-sm">Share</span>
@@ -1018,16 +1057,16 @@ export function ArtGenerator() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                  <div className="mb-4 rounded-full bg-pink-100 p-3 dark:bg-pink-900">
+                  <div className="mb-4 rounded-full bg-pink-100 p-3 dark:bg-pink-900 float-animation pulse-glow">
                     <FileText className="h-5 w-5 text-pink-600 dark:text-pink-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg">Advanced Text Generator</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg gradient-text">Advanced Text Generator</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm mb-3">
                     Create sophisticated content in multiple languages and formats
                   </p>
                   <div className="flex flex-wrap justify-center gap-1 text-xs mb-2">
                     {TEXT_TYPES.slice(0, 4).map((type) => (
-                      <Badge key={type.value} variant="secondary" className="text-xs">
+                      <Badge key={type.value} variant="secondary" className="text-xs pulse-glow">
                         {type.icon} {type.label}
                       </Badge>
                     ))}

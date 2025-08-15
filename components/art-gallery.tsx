@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, MessageSquare, Share2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Heart, MessageSquare, Share2, Sparkles } from "lucide-react"
 
 // Initial mock gallery data with working image URLs
 const initialGalleryItems = [
@@ -128,17 +129,29 @@ export function ArtGallery() {
     <div className="pb-safe">
       <Tabs defaultValue="all" onValueChange={setActiveCategory} className="w-full">
         <div className="flex justify-center">
-          <TabsList className="grid w-full max-w-md grid-cols-4">
-            <TabsTrigger value="all" className="text-xs sm:text-sm">
+          <TabsList className="grid w-full max-w-md grid-cols-4 glow-border">
+            <TabsTrigger
+              value="all"
+              className="text-xs sm:text-sm transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900"
+            >
               All
             </TabsTrigger>
-            <TabsTrigger value="visual" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="visual"
+              className="text-xs sm:text-sm transition-all duration-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+            >
               Visual
             </TabsTrigger>
-            <TabsTrigger value="music" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="music"
+              className="text-xs sm:text-sm transition-all duration-300 hover:bg-green-100 dark:hover:bg-green-900"
+            >
               Music
             </TabsTrigger>
-            <TabsTrigger value="text" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="text"
+              className="text-xs sm:text-sm transition-all duration-300 hover:bg-pink-100 dark:hover:bg-pink-900"
+            >
               Writing
             </TabsTrigger>
           </TabsList>
@@ -147,29 +160,35 @@ export function ArtGallery() {
         <TabsContent value={activeCategory} className="mt-6 sm:mt-8">
           <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden transition-all hover:shadow-lg">
+              <Card key={item.id} className="overflow-hidden glow-card interactive-card">
                 <div className="relative aspect-square overflow-hidden sm:aspect-[4/3]">
                   <img
                     src={item.image || "/placeholder.svg"}
                     alt={item.title}
-                    className="h-full w-full object-cover transition-transform hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-110"
                   />
+                  <div className="absolute top-2 right-2">
+                    <Badge variant="secondary" className="pulse-glow">
+                      <Sparkles className="mr-1 h-3 w-3" />
+                      AI
+                    </Badge>
+                  </div>
                 </div>
                 <CardContent className="p-3 sm:p-4">
-                  <h3 className="text-sm font-semibold sm:text-base">{item.title}</h3>
+                  <h3 className="text-sm font-semibold sm:text-base gradient-text">{item.title}</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">{item.artist}</p>
                   <div className="mt-3 flex items-center justify-between sm:mt-4">
                     <div className="flex space-x-3 sm:space-x-4">
-                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2">
+                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2 glow-border ripple">
                         <Heart className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                         <span className="text-xs sm:text-sm">{item.likes}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2">
+                      <Button variant="ghost" size="sm" className="h-6 px-1 sm:h-8 sm:px-2 glow-border ripple">
                         <MessageSquare className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
                         <span className="text-xs sm:text-sm">{item.comments}</span>
                       </Button>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 sm:h-8 sm:w-8">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 sm:h-8 sm:w-8 glow-border ripple">
                       <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
@@ -181,8 +200,14 @@ export function ArtGallery() {
       </Tabs>
 
       <div className="mt-8 text-center sm:mt-12">
-        <Button variant="outline" size="lg" onClick={handleLoadMore} className="w-full sm:w-auto bg-transparent">
-          Load More
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={handleLoadMore}
+          className="w-full sm:w-auto glow-button ai-gradient-blue text-white border-0 ripple bg-transparent"
+        >
+          <Sparkles className="mr-2 h-4 w-4" />
+          Load More Creations
         </Button>
       </div>
     </div>
