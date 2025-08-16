@@ -5,19 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  BarChart3,
-  Waves,
-  Activity,
-  Zap,
-  TrendingUp,
-  Radio,
-  Headphones,
-} from "lucide-react"
+import { Play, Pause, Volume2, VolumeX, BarChart3, Waves, Activity, Music, Zap, TrendingUp } from "lucide-react"
 
 interface MusicAnalysis {
   tempo: number
@@ -50,7 +38,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
   const [volume, setVolume] = useState([70])
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [visualizerType, setVisualizerType] = useState<"waveform" | "frequency" | "circular" | "spectrum">("spectrum")
+  const [visualizerType, setVisualizerType] = useState<"waveform" | "frequency" | "circular">("waveform")
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
@@ -72,8 +60,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
       const analyser = audioContext.createAnalyser()
       const source = audioContext.createMediaElementSource(audioRef.current)
 
-      analyser.fftSize = 512 // Increased for better resolution
-      analyser.smoothingTimeConstant = 0.8
+      analyser.fftSize = 256
       source.connect(analyser)
       analyser.connect(audioContext.destination)
 
@@ -103,21 +90,15 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
 
       analyser.getByteFrequencyData(dataArray)
 
-      // Clear canvas with gradient background
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
-      gradient.addColorStop(0, "rgb(15, 23, 42)")
-      gradient.addColorStop(1, "rgb(30, 41, 59)")
-      ctx.fillStyle = gradient
+      ctx.fillStyle = "rgb(15, 23, 42)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       if (visualizerType === "waveform") {
-        drawEnhancedWaveform(ctx, dataArray, canvas.width, canvas.height)
+        drawWaveform(ctx, dataArray, canvas.width, canvas.height)
       } else if (visualizerType === "frequency") {
-        drawEnhancedFrequencyBars(ctx, dataArray, canvas.width, canvas.height)
+        drawFrequencyBars(ctx, dataArray, canvas.width, canvas.height)
       } else if (visualizerType === "circular") {
-        drawEnhancedCircularVisualizer(ctx, dataArray, canvas.width, canvas.height)
-      } else if (visualizerType === "spectrum") {
-        drawSpectrumAnalyzer(ctx, dataArray, canvas.width, canvas.height)
+        drawCircularVisualizer(ctx, dataArray, canvas.width, canvas.height)
       }
 
       animationRef.current = requestAnimationFrame(draw)
@@ -126,20 +107,14 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
     draw()
   }
 
-  const drawEnhancedWaveform = (
-    ctx: CanvasRenderingContext2D,
-    dataArray: Uint8Array,
-    width: number,
-    height: number,
-  ) => {
+  const drawWaveform = (ctx: CanvasRenderingContext2D, dataArray: Uint8Array, width: number, height: number) => {
     const gradient = ctx.createLinearGradient(0, 0, width, 0)
     gradient.addColorStop(0, "#8b5cf6")
-    gradient.addColorStop(0.3, "#06b6d4")
-    gradient.addColorStop(0.6, "#10b981")
-    gradient.addColorStop(1, "#f59e0b")
+    gradient.addColorStop(0.5, "#06b6d4")
+    gradient.addColorStop(1, "#10b981")
 
     ctx.strokeStyle = gradient
-    ctx.lineWidth = 3
+    ctx.lineWidth = 2
     ctx.beginPath()
 
     const sliceWidth = width / dataArray.length
@@ -160,49 +135,33 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
 
     ctx.stroke()
 
-    // Add multiple glow effects
+    // Add glow effect
     ctx.shadowColor = "#8b5cf6"
-    ctx.shadowBlur = 15
-    ctx.stroke()
-    ctx.shadowColor = "#06b6d4"
     ctx.shadowBlur = 10
     ctx.stroke()
     ctx.shadowBlur = 0
   }
 
-  const drawEnhancedFrequencyBars = (
-    ctx: CanvasRenderingContext2D,
-    dataArray: Uint8Array,
-    width: number,
-    height: number,
-  ) => {
-    const barWidth = (width / dataArray.length) * 2
+  const drawFrequencyBars = (ctx: CanvasRenderingContext2D, dataArray: Uint8Array, width: number, height: number) => {
+    const barWidth = width / dataArray.length
     let x = 0
 
     for (let i = 0; i < dataArray.length; i++) {
       const barHeight = (dataArray[i] / 255) * height
 
-      // Create dynamic gradient for each bar
+      // Create gradient for each bar
       const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height)
-      const hue = (i / dataArray.length) * 360
-      gradient.addColorStop(0, `hsl(${hue}, 80%, 70%)`)
-      gradient.addColorStop(0.5, `hsl(${hue}, 70%, 50%)`)
-      gradient.addColorStop(1, `hsl(${hue}, 60%, 30%)`)
+      gradient.addColorStop(0, `hsl(${(i / dataArray.length) * 360}, 70%, 60%)`)
+      gradient.addColorStop(1, `hsl(${(i / dataArray.length) * 360}, 70%, 40%)`)
 
       ctx.fillStyle = gradient
-      ctx.fillRect(x, height - barHeight, barWidth - 2, barHeight)
-
-      // Add glow effect
-      ctx.shadowColor = `hsl(${hue}, 70%, 50%)`
-      ctx.shadowBlur = 5
-      ctx.fillRect(x, height - barHeight, barWidth - 2, barHeight)
-      ctx.shadowBlur = 0
+      ctx.fillRect(x, height - barHeight, barWidth - 1, barHeight)
 
       x += barWidth
     }
   }
 
-  const drawEnhancedCircularVisualizer = (
+  const drawCircularVisualizer = (
     ctx: CanvasRenderingContext2D,
     dataArray: Uint8Array,
     width: number,
@@ -214,18 +173,9 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
 
     ctx.translate(centerX, centerY)
 
-    // Draw center circle
-    ctx.beginPath()
-    ctx.arc(0, 0, radius * 0.3, 0, 2 * Math.PI)
-    const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 0.3)
-    centerGradient.addColorStop(0, "rgba(139, 92, 246, 0.8)")
-    centerGradient.addColorStop(1, "rgba(139, 92, 246, 0.2)")
-    ctx.fillStyle = centerGradient
-    ctx.fill()
-
     for (let i = 0; i < dataArray.length; i++) {
       const angle = (i / dataArray.length) * Math.PI * 2
-      const barHeight = (dataArray[i] / 255) * radius * 0.8
+      const barHeight = (dataArray[i] / 255) * radius
 
       const x1 = Math.cos(angle) * radius
       const y1 = Math.sin(angle) * radius
@@ -233,68 +183,16 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
       const y2 = Math.sin(angle) * (radius + barHeight)
 
       const hue = (i / dataArray.length) * 360
-      ctx.strokeStyle = `hsl(${hue}, 80%, 60%)`
-      ctx.lineWidth = 3
+      ctx.strokeStyle = `hsl(${hue}, 70%, 60%)`
+      ctx.lineWidth = 2
 
       ctx.beginPath()
       ctx.moveTo(x1, y1)
       ctx.lineTo(x2, y2)
       ctx.stroke()
-
-      // Add glow
-      ctx.shadowColor = `hsl(${hue}, 80%, 60%)`
-      ctx.shadowBlur = 8
-      ctx.stroke()
-      ctx.shadowBlur = 0
     }
 
     ctx.translate(-centerX, -centerY)
-  }
-
-  const drawSpectrumAnalyzer = (
-    ctx: CanvasRenderingContext2D,
-    dataArray: Uint8Array,
-    width: number,
-    height: number,
-  ) => {
-    const barWidth = width / dataArray.length
-    const barGap = 1
-
-    for (let i = 0; i < dataArray.length; i++) {
-      const barHeight = (dataArray[i] / 255) * height * 0.9
-      const x = i * barWidth
-
-      // Create frequency-based color
-      const frequency = (i / dataArray.length) * 22050 // Approximate frequency
-      let hue = 0
-      if (frequency < 250)
-        hue = 0 // Red for bass
-      else if (frequency < 2000)
-        hue = 60 // Yellow for mids
-      else hue = 240 // Blue for highs
-
-      const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height)
-      gradient.addColorStop(0, `hsl(${hue}, 100%, 70%)`)
-      gradient.addColorStop(0.5, `hsl(${hue}, 80%, 50%)`)
-      gradient.addColorStop(1, `hsl(${hue}, 60%, 30%)`)
-
-      ctx.fillStyle = gradient
-      ctx.fillRect(x, height - barHeight, barWidth - barGap, barHeight)
-
-      // Add reflection
-      const reflectionGradient = ctx.createLinearGradient(0, height, 0, height + barHeight * 0.3)
-      reflectionGradient.addColorStop(0, `hsla(${hue}, 60%, 30%, 0.3)`)
-      reflectionGradient.addColorStop(1, `hsla(${hue}, 60%, 30%, 0)`)
-      ctx.fillStyle = reflectionGradient
-      ctx.fillRect(x, height, barWidth - barGap, barHeight * 0.3)
-    }
-
-    // Add frequency labels
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
-    ctx.font = "10px monospace"
-    ctx.fillText("Bass", 10, height - 10)
-    ctx.fillText("Mid", width / 2 - 15, height - 10)
-    ctx.fillText("High", width - 40, height - 10)
   }
 
   const handlePlayPause = async () => {
@@ -315,14 +213,9 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
         await audioContextRef.current.resume()
       }
 
-      try {
-        await audioRef.current.play()
-        setIsPlaying(true)
-        startVisualization()
-      } catch (error) {
-        console.error("Playback failed:", error)
-        setIsPlaying(false)
-      }
+      audioRef.current.play()
+      setIsPlaying(true)
+      startVisualization()
     }
   }
 
@@ -361,7 +254,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
   const analyzeMusic = async () => {
     setIsAnalyzing(true)
 
-    // Enhanced music analysis simulation
+    // Simulate music analysis
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     const updatedAnalysis: MusicAnalysis = {
@@ -404,28 +297,20 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
         className="hidden"
       />
 
-      {/* Enhanced Visualizer Canvas */}
-      <Card className="glow-card">
+      {/* Visualizer Canvas */}
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center text-base gradient-text">
-              <Radio className="mr-2 h-4 w-4" />
-              Advanced Music Visualizer
+            <CardTitle className="flex items-center text-base">
+              <Waves className="mr-2 h-4 w-4" />
+              Music Visualizer
             </CardTitle>
             <div className="flex space-x-1">
-              <Button
-                variant={visualizerType === "spectrum" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setVisualizerType("spectrum")}
-                className="text-xs glow-border ripple"
-              >
-                <BarChart3 className="h-3 w-3" />
-              </Button>
               <Button
                 variant={visualizerType === "waveform" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setVisualizerType("waveform")}
-                className="text-xs glow-border ripple"
+                className="text-xs"
               >
                 <Activity className="h-3 w-3" />
               </Button>
@@ -433,15 +318,15 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
                 variant={visualizerType === "frequency" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setVisualizerType("frequency")}
-                className="text-xs glow-border ripple"
+                className="text-xs"
               >
-                <Waves className="h-3 w-3" />
+                <BarChart3 className="h-3 w-3" />
               </Button>
               <Button
                 variant={visualizerType === "circular" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setVisualizerType("circular")}
-                className="text-xs glow-border ripple"
+                className="text-xs"
               >
                 <Zap className="h-3 w-3" />
               </Button>
@@ -450,48 +335,27 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
         </CardHeader>
         <CardContent>
           <div className="relative">
-            <canvas
-              ref={canvasRef}
-              width={600}
-              height={300}
-              className="w-full h-60 bg-slate-900 rounded-lg border glow-border"
-            />
+            <canvas ref={canvasRef} width={400} height={200} className="w-full h-48 bg-slate-900 rounded-lg border" />
             {!isPlaying && (
               <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-lg">
                 <div className="text-center text-white">
-                  <Headphones className="h-8 w-8 mx-auto mb-2 opacity-50 float-animation" />
-                  <p className="text-sm opacity-75">Click play to see advanced visualization</p>
-                  <div className="mt-2 flex items-center justify-center space-x-2 text-xs">
-                    <Badge variant="secondary" className="pulse-glow">
-                      Spectrum Analyzer
-                    </Badge>
-                    <Badge variant="secondary" className="pulse-glow">
-                      Real-time Audio
-                    </Badge>
-                  </div>
+                  <Music className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm opacity-75">Click play to see visualization</p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Enhanced Controls */}
+          {/* Controls */}
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePlayPause}
-                  className="glow-border ripple bg-transparent"
-                >
+                <Button variant="outline" size="sm" onClick={handlePlayPause} className="bg-transparent">
                   {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                 </Button>
                 <span className="text-sm text-muted-foreground">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
-                <Badge variant="outline" className="text-xs pulse-glow">
-                  {visualizerType.charAt(0).toUpperCase() + visualizerType.slice(1)}
-                </Badge>
               </div>
               <div className="flex items-center space-x-2">
                 {volume[0] === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
@@ -513,20 +377,20 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
         </CardContent>
       </Card>
 
-      {/* Enhanced Music Analysis */}
-      <Card className="glow-card">
+      {/* Music Analysis */}
+      <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center text-base gradient-text">
+            <CardTitle className="flex items-center text-base">
               <TrendingUp className="mr-2 h-4 w-4" />
-              Advanced Music Analysis
+              Music Analysis
             </CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={analyzeMusic}
               disabled={isAnalyzing}
-              className="text-xs glow-border ripple bg-transparent"
+              className="text-xs bg-transparent"
             >
               {isAnalyzing ? (
                 <>
@@ -536,7 +400,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
               ) : (
                 <>
                   <BarChart3 className="mr-1 h-3 w-3" />
-                  Deep Analysis
+                  Analyze
                 </>
               )}
             </Button>
@@ -548,7 +412,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Tempo</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="text-xs pulse-glow">
+                <Badge variant="secondary" className="text-xs">
                   {analysis.tempo} BPM
                 </Badge>
               </div>
@@ -557,7 +421,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Key</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-xs pulse-glow">
+                <Badge variant="outline" className="text-xs">
                   {analysis.key}
                 </Badge>
               </div>
@@ -566,7 +430,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Time Signature</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-xs pulse-glow">
+                <Badge variant="outline" className="text-xs">
                   {analysis.timeSignature}
                 </Badge>
               </div>
@@ -620,7 +484,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Loudness</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="text-xs pulse-glow">
+                <Badge variant="secondary" className="text-xs">
                   {analysis.loudness.toFixed(1)} dB
                 </Badge>
               </div>
@@ -629,7 +493,7 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Genre</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="default" className="text-xs pulse-glow">
+                <Badge variant="default" className="text-xs">
                   {analysis.genre}
                 </Badge>
               </div>
@@ -638,30 +502,28 @@ export function MusicVisualizer({ audioUrl, analysis, onAnalysisUpdate }: MusicV
             <div className="space-y-2">
               <div className="text-xs text-muted-foreground">Language</div>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-xs pulse-glow">
+                <Badge variant="outline" className="text-xs">
                   {analysis.language}
                 </Badge>
               </div>
             </div>
           </div>
 
-          {/* Enhanced Analysis Summary */}
-          <div className="mt-4 p-3 bg-muted/30 rounded-lg glow-card">
-            <h4 className="text-sm font-medium mb-2 gradient-text">Advanced Analysis Summary</h4>
+          {/* Analysis Summary */}
+          <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+            <h4 className="text-sm font-medium mb-2">Analysis Summary</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              This {analysis.genre.toLowerCase()} track in {analysis.language} features a{" "}
-              {analysis.tempo > 120 ? "fast-paced" : analysis.tempo > 90 ? "moderate" : "slow"} tempo of{" "}
-              {analysis.tempo} BPM with {analysis.timeSignature} time signature. The energy level is{" "}
-              {analysis.energy > 70 ? "high" : analysis.energy > 40 ? "moderate" : "low"} ({Math.round(analysis.energy)}
-              %), making it{" "}
+              This {analysis.genre.toLowerCase()} track in {analysis.language} has a{" "}
+              {analysis.tempo > 120 ? "fast" : analysis.tempo > 90 ? "moderate" : "slow"} tempo of {analysis.tempo} BPM.
+              The energy level is {analysis.energy > 70 ? "high" : analysis.energy > 40 ? "moderate" : "low"} (
+              {Math.round(analysis.energy)}%), making it{" "}
               {analysis.danceability > 70
                 ? "very danceable"
                 : analysis.danceability > 40
                   ? "moderately danceable"
                   : "not very danceable"}
               . The overall mood is{" "}
-              {analysis.valence > 70 ? "positive and uplifting" : analysis.valence > 40 ? "neutral" : "melancholic"}
-              with a loudness of {analysis.loudness.toFixed(1)} dB.
+              {analysis.valence > 70 ? "positive and uplifting" : analysis.valence > 40 ? "neutral" : "melancholic"}.
             </p>
           </div>
         </CardContent>
