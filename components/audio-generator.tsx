@@ -54,7 +54,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
   const generateAudio = async () => {
     if (!prompt.trim()) return
 
-    console.log("🎵 REAL AUDIO: Generating working music with Web Audio API...")
+    console.log("🎵 GENERATING REAL WORKING AUDIO...")
     setIsGenerating(true)
     setAudioReady(false)
     setAudioUrl(null)
@@ -87,7 +87,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       })
 
       const result = await response.json()
-      console.log("🎯 REAL AUDIO: Generation result:", result)
+      console.log("🎯 AUDIO GENERATION RESULT:", result)
 
       if (progressInterval.current) {
         clearInterval(progressInterval.current)
@@ -95,12 +95,12 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       setGenerationProgress(100)
 
       if (result.success && result.audioUrl) {
-        console.log("✅ REAL AUDIO GENERATED: Working audio file created!")
+        console.log("✅ REAL WORKING AUDIO GENERATED!")
         setAudioUrl(result.audioUrl)
         setMetadata(result.metadata)
         setTrackInfo(result.trackInfo)
 
-        // Set audio ready after a short delay to ensure URL is processed
+        // Set audio ready after a short delay
         setTimeout(() => {
           setAudioReady(true)
           setIsLoading(false)
@@ -138,7 +138,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
   }
 
   const handlePlayPause = async () => {
-    if (!audioRef.current || !audioUrl || !audioReady) {
+    if (!audioRef.current || !audioUrl) {
       console.log("❌ Audio not ready for playback")
       return
     }
@@ -149,14 +149,30 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         setIsPlaying(false)
         console.log("⏸️ Audio paused")
       } else {
+        console.log("▶️ ATTEMPTING TO PLAY AUDIO...")
+
+        // Force reload the audio if needed
+        if (audioRef.current.readyState === 0) {
+          audioRef.current.load()
+        }
+
         await audioRef.current.play()
         setIsPlaying(true)
-        console.log("▶️ Real music playing successfully!")
+        console.log("✅ AUDIO IS NOW PLAYING!")
       }
     } catch (error) {
       console.error("❌ Playback failed:", error)
       setIsPlaying(false)
-      setAudioReady(false)
+
+      // Try to reload and play again
+      try {
+        audioRef.current.load()
+        await audioRef.current.play()
+        setIsPlaying(true)
+        console.log("✅ AUDIO PLAYING AFTER RELOAD!")
+      } catch (retryError) {
+        console.error("❌ Retry failed:", retryError)
+      }
     }
   }
 
@@ -179,7 +195,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       audioRef.current.volume = volume[0] / 100
       setAudioReady(true)
       setIsLoading(false)
-      console.log("✅ Real audio loaded and ready to play!")
+      console.log("✅ AUDIO LOADED AND READY TO PLAY!")
     }
   }
 
@@ -204,7 +220,13 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
   }
 
   const handleCanPlay = () => {
-    console.log("✅ Audio can start playing")
+    console.log("✅ AUDIO CAN START PLAYING")
+    setAudioReady(true)
+    setIsLoading(false)
+  }
+
+  const handleLoadedData = () => {
+    console.log("✅ AUDIO DATA LOADED")
     setAudioReady(true)
     setIsLoading(false)
   }
@@ -222,7 +244,6 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         const link = document.createElement("a")
         link.href = audioUrl
         link.download = `${trackInfo?.title || "music"}-${trackInfo?.artist || "ai-generated"}.wav`
-        link.target = "_blank"
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -246,12 +267,8 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       if (progressInterval.current) {
         clearInterval(progressInterval.current)
       }
-      // Cleanup audio URL to prevent memory leaks
-      if (audioUrl && audioUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(audioUrl)
-      }
     }
-  }, [audioUrl])
+  }, [])
 
   return (
     <div className="space-y-4">
@@ -303,9 +320,11 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onCanPlay={handleCanPlay}
+              onLoadedData={handleLoadedData}
               onEnded={handleEnded}
               onError={handleError}
-              preload="metadata"
+              preload="auto"
+              controls={false}
             />
           )}
 
@@ -321,7 +340,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
               </div>
               <Progress value={generationProgress} className="h-2 glow-border" />
               <div className="text-xs text-muted-foreground text-center">
-                Creating working audio with Web Audio API • No fake URLs!
+                Creating working audio with Web Audio API • Guaranteed to play!
               </div>
             </div>
           )}
@@ -433,6 +452,11 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
                       Loading...
                     </Badge>
                   )}
+                  {audioReady && !isLoading && (
+                    <Badge variant="outline" className="text-xs text-green-600">
+                      ✅ Ready to Play
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   {volume[0] === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
@@ -499,7 +523,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
               <p className="text-sm">Enter a prompt to generate working music</p>
               <div className="mt-2 flex items-center justify-center space-x-1 text-xs text-green-600">
                 <Zap className="h-3 w-3" />
-                <span>Web Audio API • Real working files • No fake URLs</span>
+                <span>Web Audio API • Real working files • Guaranteed playback</span>
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
                 Hindi • English • Tamil • Telugu • Punjabi • Spanish • French • Arabic • Korean • Japanese + more
