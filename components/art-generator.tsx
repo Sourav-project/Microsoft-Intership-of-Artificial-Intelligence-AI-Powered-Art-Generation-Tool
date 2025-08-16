@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MusicVisualizer } from "./music-visualizer"
 import { AudioGenerator } from "./audio-generator"
-import { ImageLibraryBrowser } from "./image-library-browser"
 import {
   Loader2,
   RefreshCw,
@@ -29,9 +28,9 @@ import {
   Volume2,
   BookOpen,
   Wand2,
+  Zap,
+  Target,
   Sparkles,
-  Library,
-  Database,
 } from "lucide-react"
 
 interface GenerationResult {
@@ -47,10 +46,6 @@ interface GenerationResult {
     enhancedPrompt?: string
     note?: string
     isRealAI?: boolean
-    isRealImage?: boolean
-    librarySize?: number
-    matchType?: string
-    imageInfo?: any
   }
 }
 
@@ -152,7 +147,6 @@ export function ArtGenerator() {
   const [generatedText, setGeneratedText] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("image")
   const [lastResult, setLastResult] = useState<GenerationResult | null>(null)
-  const [showImageLibrary, setShowImageLibrary] = useState(false)
 
   // Music generation states
   const [musicLanguage, setMusicLanguage] = useState("en")
@@ -287,13 +281,13 @@ export function ArtGenerator() {
   const handleImageGeneration = async () => {
     if (!imagePrompt.trim()) return
 
-    console.log("🎨 Starting MASSIVE LIBRARY image search for:", imagePrompt)
+    console.log("🎨 Starting REAL AI image generation for:", imagePrompt)
     setIsGenerating(true)
     setGeneratedImage(null)
     setLastResult(null)
 
     try {
-      const response = await fetch("/api/generate-image", {
+      const response = await fetch("/api/generate-real-image", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -306,12 +300,12 @@ export function ArtGenerator() {
       })
 
       const result: GenerationResult = await response.json()
-      console.log("🎯 MASSIVE LIBRARY result:", result)
+      console.log("🎯 Real AI generation result:", result)
 
       setLastResult(result)
 
       if (result.success && result.imageUrl) {
-        console.log("✅ Perfect image found from massive library!")
+        console.log("✅ Real AI image generated successfully!")
         setGeneratedImage(result.imageUrl)
       } else {
         console.log("❌ Generation failed:", result.error)
@@ -333,7 +327,7 @@ export function ArtGenerator() {
           service: "Backup Service",
           responseTime: 500,
           size: "1024x1024",
-          note: "Backup image while optimizing massive library",
+          note: "Backup image while optimizing AI services",
         },
       })
     } finally {
@@ -453,7 +447,7 @@ export function ArtGenerator() {
     return `${quality} Quality • ${size} Format`
   }
 
-  const isRealImage = lastResult?.success && (lastResult?.metadata?.isRealAI || lastResult?.metadata?.isRealImage)
+  const isRealAI = lastResult?.success && lastResult?.metadata?.isRealAI
 
   const handleAudioGenerated = (audioUrl: string) => {
     setGeneratedMusic(audioUrl)
@@ -493,8 +487,8 @@ export function ArtGenerator() {
             <div className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="image-prompt" className="text-sm font-medium flex items-center gradient-text">
-                  <Database className="mr-1 h-3 w-3" />
-                  Search 10+ Billion Images
+                  <Target className="mr-1 h-3 w-3" />
+                  Describe EXACTLY what you want to see
                 </Label>
                 <Input
                   id="image-prompt"
@@ -506,8 +500,8 @@ export function ArtGenerator() {
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span className="flex items-center">
-                    <Database className="mr-1 h-3 w-3 text-green-500" />
-                    10+ Billion professional images available!
+                    <Target className="mr-1 h-3 w-3 text-green-500" />
+                    AI will generate EXACTLY what you describe!
                   </span>
                   <span>{imagePrompt.length}/1000</span>
                 </div>
@@ -552,39 +546,30 @@ export function ArtGenerator() {
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>{getQualityInfo()}</span>
                   <Badge variant="secondary" className="text-xs pulse-glow">
-                    <Database className="mr-1 h-3 w-3" />
-                    10B+ Images
+                    <Zap className="mr-1 h-3 w-3" />
+                    Real AI
                   </Badge>
                 </div>
               </div>
 
-              <div className="flex space-x-2">
-                <Button
-                  onClick={handleGenerate}
-                  disabled={!imagePrompt.trim() || isGenerating}
-                  className="flex-1 generate-button text-white border-0 ripple button-text-glow transition-all duration-500 hover:scale-105"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Searching massive library...
-                    </>
-                  ) : (
-                    <>
-                      <Database className="mr-2 h-4 w-4" />
-                      Find Perfect Image
-                      <Sparkles className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowImageLibrary(!showImageLibrary)}
-                  className="glow-border ripple bg-transparent"
-                >
-                  <Library className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button
+                onClick={handleGenerate}
+                disabled={!imagePrompt.trim() || isGenerating}
+                className="w-full generate-button text-white border-0 ripple button-text-glow transition-all duration-500 hover:scale-105"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating EXACTLY what you described...
+                  </>
+                ) : (
+                  <>
+                    <Target className="mr-2 h-4 w-4" />
+                    Generate EXACTLY This Image
+                    <Sparkles className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
 
               {lastResult && lastResult.success && (
                 <Alert className="glow-card border-green-200 dark:border-green-800">
@@ -593,37 +578,20 @@ export function ArtGenerator() {
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="gradient-text font-medium">
-                          {isRealImage ? "🎯 PERFECT LIBRARY MATCH!" : "📸 Smart Image Match"}
+                          {isRealAI ? "🎯 REAL AI Generated Exactly!" : "📸 Smart Image Match"}
                           {lastResult.metadata && ` (${lastResult.metadata.responseTime}ms)`}
                         </span>
-                        <Badge variant={isRealImage ? "default" : "secondary"} className="pulse-glow">
-                          {lastResult.metadata?.matchType || lastResult.metadata?.service || "Library"}
+                        <Badge variant={isRealAI ? "default" : "secondary"} className="pulse-glow">
+                          {lastResult.metadata?.service || lastResult.metadata?.model || "AI"}
                         </Badge>
                       </div>
-                      {lastResult.metadata?.imageInfo && (
-                        <div className="bg-muted/30 rounded-lg p-2 mt-2">
-                          <div className="text-sm font-medium">{lastResult.metadata.imageInfo.title}</div>
-                          {lastResult.metadata.imageInfo.style && (
-                            <div className="text-xs text-muted-foreground">
-                              Style: {lastResult.metadata.imageInfo.style} • Mood: {lastResult.metadata.imageInfo.mood}
-                            </div>
-                          )}
-                          {lastResult.metadata.imageInfo.tags && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {lastResult.metadata.imageInfo.tags.slice(0, 4).map((tag: string, index: number) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      {lastResult.metadata?.librarySize && (
-                        <p className="text-xs text-green-600">
-                          ✅ Found from our massive library of {lastResult.metadata.librarySize.toLocaleString()}{" "}
-                          professional images!
-                        </p>
+                      {lastResult.metadata?.enhancedPrompt && (
+                        <details className="text-xs">
+                          <summary className="cursor-pointer hover:text-foreground transition-colors">
+                            Enhanced Prompt
+                          </summary>
+                          <p className="mt-1 text-muted-foreground">{lastResult.metadata.enhancedPrompt}</p>
+                        </details>
                       )}
                       {lastResult.metadata?.note && (
                         <p className="text-xs text-muted-foreground">{lastResult.metadata.note}</p>
@@ -660,7 +628,7 @@ export function ArtGenerator() {
                       disabled={isGenerating}
                     >
                       <RefreshCw className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                      <span className="text-xs sm:text-sm">Find Another</span>
+                      <span className="text-xs sm:text-sm">Regenerate</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -685,29 +653,20 @@ export function ArtGenerator() {
               ) : (
                 <div className="text-center">
                   <div className="mb-4 rounded-full bg-purple-100 p-3 dark:bg-purple-900 float-animation pulse-glow">
-                    <Database className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
+                    <Target className="h-5 w-5 text-purple-600 dark:text-purple-400 sm:h-6 sm:w-6" />
                   </div>
-                  <h3 className="mb-1 text-base font-medium sm:text-lg gradient-text">10+ Billion Image Library</h3>
+                  <h3 className="mb-1 text-base font-medium sm:text-lg gradient-text">Precision AI Image Generator</h3>
                   <p className="text-xs text-muted-foreground sm:text-sm">
-                    Search our massive collection of professional images
+                    Describe exactly what you want - AI will generate it precisely
                   </p>
                   <div className="mt-2 flex items-center justify-center space-x-1 text-xs text-green-600">
-                    <Database className="h-3 w-3" />
-                    <span>Instant Access • Professional Quality • All Categories</span>
+                    <Target className="h-3 w-3" />
+                    <span>Accurate AI Generation</span>
                   </div>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Image Library Browser */}
-          {showImageLibrary && (
-            <div className="mt-6 glow-card rounded-xl p-1">
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4">
-                <ImageLibraryBrowser />
-              </div>
-            </div>
-          )}
         </TabsContent>
 
         <TabsContent value="music" className="mt-4 sm:mt-6">
