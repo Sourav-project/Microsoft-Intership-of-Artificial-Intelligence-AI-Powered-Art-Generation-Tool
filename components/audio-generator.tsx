@@ -21,8 +21,8 @@ import {
   Zap,
   Speaker,
   Library,
-  AlertTriangle,
   Headphones,
+  AudioWaveformIcon as Waveform,
 } from "lucide-react"
 
 interface AudioGeneratorProps {
@@ -46,7 +46,6 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
   const [generationProgress, setGenerationProgress] = useState(0)
   const [audioReady, setAudioReady] = useState(false)
   const [showLibrary, setShowLibrary] = useState(false)
-  const [audioError, setAudioError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -55,14 +54,13 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
   const generateAudio = async () => {
     if (!prompt.trim()) return
 
-    console.log("🎵 MASSIVE LIBRARY: Searching 5000+ real music tracks...")
+    console.log("🎵 REAL AUDIO: Generating working music with Web Audio API...")
     setIsGenerating(true)
     setAudioReady(false)
     setAudioUrl(null)
     setMetadata(null)
     setTrackInfo(null)
     setGenerationProgress(0)
-    setAudioError(null)
     setIsLoading(true)
 
     // Realistic progress simulation
@@ -71,7 +69,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         if (prev >= 85) return prev
         return prev + Math.random() * 8 + 3
       })
-    }, 200)
+    }, 150)
 
     try {
       const response = await fetch("/api/generate-audio", {
@@ -89,7 +87,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       })
 
       const result = await response.json()
-      console.log("🎯 MASSIVE LIBRARY: Music search result:", result)
+      console.log("🎯 REAL AUDIO: Generation result:", result)
 
       if (progressInterval.current) {
         clearInterval(progressInterval.current)
@@ -97,7 +95,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       setGenerationProgress(100)
 
       if (result.success && result.audioUrl) {
-        console.log("✅ REAL MUSIC FOUND: Perfect track from massive library!")
+        console.log("✅ REAL AUDIO GENERATED: Working audio file created!")
         setAudioUrl(result.audioUrl)
         setMetadata(result.metadata)
         setTrackInfo(result.trackInfo)
@@ -106,7 +104,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         setTimeout(() => {
           setAudioReady(true)
           setIsLoading(false)
-        }, 500)
+        }, 300)
 
         if (onAudioGenerated) {
           onAudioGenerated(result.audioUrl)
@@ -116,13 +114,19 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       }
     } catch (error) {
       console.error("❌ Audio generation error:", error)
-      setAudioError("Failed to find music. Please try a different prompt.")
 
       if (progressInterval.current) {
         clearInterval(progressInterval.current)
       }
       setGenerationProgress(100)
       setIsLoading(false)
+
+      // Show error but don't fail completely
+      setMetadata({
+        service: "Audio Generation Failed",
+        note: "Please try again with a different prompt",
+        error: true,
+      })
     } finally {
       setIsGenerating(false)
       setTimeout(() => {
@@ -145,15 +149,12 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         setIsPlaying(false)
         console.log("⏸️ Audio paused")
       } else {
-        // Reset audio error when trying to play
-        setAudioError(null)
         await audioRef.current.play()
         setIsPlaying(true)
         console.log("▶️ Real music playing successfully!")
       }
     } catch (error) {
       console.error("❌ Playback failed:", error)
-      setAudioError("Playback failed. The audio file may be unavailable.")
       setIsPlaying(false)
       setAudioReady(false)
     }
@@ -178,7 +179,6 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       audioRef.current.volume = volume[0] / 100
       setAudioReady(true)
       setIsLoading(false)
-      setAudioError(null)
       console.log("✅ Real audio loaded and ready to play!")
     }
   }
@@ -201,14 +201,12 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
     setIsPlaying(false)
     setAudioReady(false)
     setIsLoading(false)
-    setAudioError("Audio file could not be loaded. This may be a temporary issue.")
   }
 
   const handleCanPlay = () => {
     console.log("✅ Audio can start playing")
     setAudioReady(true)
     setIsLoading(false)
-    setAudioError(null)
   }
 
   const formatTime = (time: number) => {
@@ -223,7 +221,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       try {
         const link = document.createElement("a")
         link.href = audioUrl
-        link.download = `${trackInfo?.title || "music"}-${trackInfo?.artist || "unknown"}.mp3`
+        link.download = `${trackInfo?.title || "music"}-${trackInfo?.artist || "ai-generated"}.wav`
         link.target = "_blank"
         document.body.appendChild(link)
         link.click()
@@ -248,8 +246,12 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
       if (progressInterval.current) {
         clearInterval(progressInterval.current)
       }
+      // Cleanup audio URL to prevent memory leaks
+      if (audioUrl && audioUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(audioUrl)
+      }
     }
-  }, [])
+  }, [audioUrl])
 
   return (
     <div className="space-y-4">
@@ -257,8 +259,8 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-base">
             <span className="flex items-center gradient-text">
-              <Library className="mr-2 h-4 w-4" />
-              5000+ Real Music Library
+              <Waveform className="mr-2 h-4 w-4" />
+              Real Audio Generator
             </span>
             <div className="flex space-x-2">
               <Button
@@ -280,12 +282,12 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                    Searching...
+                    Generating...
                   </>
                 ) : (
                   <>
                     <RefreshCw className="mr-1 h-3 w-3" />
-                    Find Music
+                    Generate Music
                   </>
                 )}
               </Button>
@@ -304,7 +306,6 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
               onEnded={handleEnded}
               onError={handleError}
               preload="metadata"
-              crossOrigin="anonymous"
             />
           )}
 
@@ -314,46 +315,31 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gradient-text">
                   <Music className="mr-1 h-3 w-3 animate-pulse" />
-                  Searching 5000+ real music tracks...
+                  Generating real {genre} music...
                 </span>
                 <span className="text-muted-foreground">{Math.round(generationProgress)}%</span>
               </div>
               <Progress value={generationProgress} className="h-2 glow-border" />
               <div className="text-xs text-muted-foreground text-center">
-                Finding real {genre} music in {language} • No beep sounds!
+                Creating working audio with Web Audio API • No fake URLs!
               </div>
             </div>
           )}
 
-          {/* Audio Error */}
-          {audioError && (
-            <Alert className="border-orange-200 dark:border-orange-800">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
-              <AlertDescription>
-                <div className="space-y-2">
-                  <div className="font-medium text-orange-700 dark:text-orange-300">Audio Issue Detected</div>
-                  <div className="text-sm">{audioError}</div>
-                  <Button variant="outline" size="sm" onClick={generateAudio} className="text-xs bg-transparent">
-                    <RefreshCw className="mr-1 h-3 w-3" />
-                    Try Again
-                  </Button>
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Track Info & Success Message */}
-          {trackInfo && !isGenerating && !audioError && (
+          {/* Success Message */}
+          {trackInfo && !isGenerating && !metadata?.error && (
             <Alert className="glow-card border-green-200 dark:border-green-800">
               <CheckCircle className="h-4 w-4 text-green-500" />
               <AlertDescription>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="gradient-text font-medium">🎵 Real Music Found! ({metadata?.responseTime}ms)</span>
+                    <span className="gradient-text font-medium">
+                      🎵 Real Audio Generated! ({metadata?.responseTime}ms)
+                    </span>
                     <div className="flex space-x-1">
                       <Badge variant="default" className="pulse-glow">
                         <Headphones className="mr-1 h-3 w-3" />
-                        {metadata?.matchType || "Perfect Match"}
+                        {metadata?.matchType || "Generated"}
                       </Badge>
                       {audioReady && (
                         <Badge variant="secondary" className="pulse-glow">
@@ -390,7 +376,7 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
                   </div>
 
                   <div className="text-xs text-green-600 font-medium">
-                    ✅ Professional quality track from our {metadata?.librarySize?.toLocaleString()} song library!
+                    ✅ {metadata?.audioGeneration || "Real working audio generated with Web Audio API!"}
                   </div>
 
                   {metadata?.fallbackLevel && metadata.fallbackLevel !== "Direct Match" && (
@@ -403,8 +389,24 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
             </Alert>
           )}
 
+          {/* Error Message */}
+          {metadata?.error && (
+            <Alert className="border-red-200 dark:border-red-800">
+              <AlertDescription>
+                <div className="space-y-2">
+                  <div className="font-medium text-red-700 dark:text-red-300">Generation Failed</div>
+                  <div className="text-sm">{metadata.note}</div>
+                  <Button variant="outline" size="sm" onClick={generateAudio} className="text-xs bg-transparent">
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Try Again
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Audio Controls */}
-          {audioUrl && !isGenerating && !audioError && (
+          {audioUrl && !isGenerating && !metadata?.error && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -481,23 +483,23 @@ export function AudioGenerator({ prompt, language, genre, duration, type, onAudi
                 )}
                 <Badge variant="outline" className="pulse-glow text-green-600">
                   <Speaker className="mr-1 h-3 w-3" />
-                  Real Music
+                  Real Audio
                 </Badge>
               </div>
             </div>
           )}
 
           {/* Placeholder when no audio */}
-          {!audioUrl && !isGenerating && !audioError && (
+          {!audioUrl && !isGenerating && !metadata?.error && (
             <div className="text-center py-8 text-muted-foreground">
               <div className="mb-4 rounded-full bg-blue-100 p-3 dark:bg-blue-900 float-animation pulse-glow">
-                <Library className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
+                <Waveform className="h-5 w-5 text-blue-600 dark:text-blue-400 sm:h-6 sm:w-6" />
               </div>
-              <h3 className="mb-1 text-base font-medium gradient-text">5000+ Real Music Library</h3>
-              <p className="text-sm">Enter a prompt to find real music tracks</p>
+              <h3 className="mb-1 text-base font-medium gradient-text">Real Audio Generator</h3>
+              <p className="text-sm">Enter a prompt to generate working music</p>
               <div className="mt-2 flex items-center justify-center space-x-1 text-xs text-green-600">
                 <Zap className="h-3 w-3" />
-                <span>Real music • No beep sounds • Professional quality</span>
+                <span>Web Audio API • Real working files • No fake URLs</span>
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
                 Hindi • English • Tamil • Telugu • Punjabi • Spanish • French • Arabic • Korean • Japanese + more
